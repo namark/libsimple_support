@@ -1,9 +1,9 @@
-#ifndef SIMPLE_VARIADIC_FUNCTION_UTILS_HPP
-#define SIMPLE_VARIADIC_FUNCTION_UTILS_HPP
+#ifndef SIMPLE_SUPPORT_FUNCTION_UTILS_HPP
+#define SIMPLE_SUPPORT_FUNCTION_UTILS_HPP
 #include <type_traits>
 #include <tuple>
 
-namespace simple { namespace variadic
+namespace simple { namespace support
 {
 
 	template <typename Function>
@@ -31,6 +31,6 @@ namespace simple { namespace variadic
 	template <typename ReturnType, typename... ArgumentType>
 	inline constexpr ReturnType nop(ArgumentType...) {}
 
-}} // namespace simple.variadic
+}} // namespace simple.support
 
 #endif /* end of include guard */

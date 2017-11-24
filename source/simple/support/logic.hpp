@@ -1,9 +1,9 @@
-#ifndef SIMPLE_VARIADIC_LOGIC_HPP
-#define SIMPLE_VARIADIC_LOGIC_HPP
+#ifndef SIMPLE_SUPPORT_LOGIC_HPP
+#define SIMPLE_SUPPORT_LOGIC_HPP
 
 #include <type_traits>
 
-namespace simple { namespace variadic
+namespace simple { namespace support
 {
 
 	template <bool...>
@@ -23,6 +23,6 @@ namespace simple { namespace variadic
 	template <bool... conditions>
 	using enable_if_any = std::enable_if_t<or_logic<conditions...>::value>;
 
-}} // namespace simple.variadic
+}} // namespace simple.support
 
 #endif /* end of include guard */

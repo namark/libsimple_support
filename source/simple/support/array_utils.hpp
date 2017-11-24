@@ -1,10 +1,10 @@
-#ifndef SIMPLE_VARIADIC_ARRAY_UTILS_HPP
-#define SIMPLE_VARIADIC_ARRAY_UTILS_HPP
+#ifndef SIMPLE_SUPPORT_ARRAY_UTILS_HPP
+#define SIMPLE_SUPPORT_ARRAY_UTILS_HPP
 
 #include <array>
 #include <utility>
 
-namespace simple { namespace variadic
+namespace simple { namespace support
 {
 
 	template <typename T, size_t... Is>
@@ -31,6 +31,6 @@ namespace simple { namespace variadic
 		return indecies_to_array(initialiser, std::make_index_sequence<size>{});
 	}
 
-}} // namespace simple.variadic
+}} // namespace simple.support
 
 #endif /* end of include guard */

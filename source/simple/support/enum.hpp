@@ -15,21 +15,21 @@ namespace simple { namespace support
 		struct hasDefault
 		{ static constexpr bool value = false; };
 		template<typename Type>
-		struct hasDefault<Type, decltype(Type::Default)>
+		struct hasDefault<Type, decltype((void)Type::Default, nullptr)>
 		{ static constexpr bool value = true; };
 
 		template<typename Type, typename = std::nullptr_t>
 		struct hasToConversion
 		{ static constexpr bool value = false; };
 		template<typename Type>
-		struct hasToConversion<Type, decltype(Type::to)>
+		struct hasToConversion<Type, decltype((void)Type::to, nullptr)>
 		{ static constexpr bool value = true; };
 
 		template<typename Type, typename = std::nullptr_t>
 		struct hasFromConversion
 		{ static constexpr bool value = false; };
 		template<typename Type>
-		struct hasFromConversion<Type, decltype(Type::from)>
+		struct hasFromConversion<Type, decltype((void)Type::from, nullptr)>
 		{ static constexpr bool value = true; };
 
 	} // namespace __Enum_Impl
@@ -64,7 +64,7 @@ namespace simple { namespace support
 			return _type;
 		}
 
-		template<typename G=Guts, std::enable_if_t<!__Enum_Details::hasFromConversion<G>::value>* = nullptr>
+		template<typename G=Guts, std::enable_if_t<__Enum_Details::hasFromConversion<G>::value>* = nullptr>
 		explicit Enum(const typename support::fun_param_t<decltype(G::from), 0>& name)
 		{
 			// TODO: static assert one parameter
@@ -72,7 +72,7 @@ namespace simple { namespace support
 			_type = Guts::from(name);
 		}
 
-		template<typename G=Guts, std::enable_if_t<!__Enum_Details::hasToConversion<G>::value>* = nullptr>
+		template<typename G=Guts, std::enable_if_t<__Enum_Details::hasToConversion<G>::value>* = nullptr>
 		explicit operator typename support::fun_return_t<decltype(G::from)>() const
 		{
 			// TODO: static assert one parameters

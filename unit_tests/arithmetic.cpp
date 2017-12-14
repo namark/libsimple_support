@@ -60,10 +60,10 @@ void checkSigned()
 	assert(Largest(half) - Largest(quart) == Signed(-result));
 
 	assert(mul_overflow(result, Signed(-quart), Signed(6)));
-	assert(Signed(Signed(-quart) * Signed(6)) == result);
+	assert(Signed(Largest(-quart) * Largest(6)) == result);
 
 	assert(mul_overflow(result, quart, Signed(-6)));
-	assert(Signed(quart * Signed(-6)) == result);
+	assert(Signed(Largest(quart) * Largest(-6)) == result);
 
 
 	// crossing zero tests

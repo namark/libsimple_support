@@ -3,7 +3,11 @@
 
 #include <type_traits>
 
-#if defined __GNUC__ && !defined SIMPLE_PREVENT_INTRINSIC_OVERFLOW_CHECK
+#if !defined __GNUC__ || defined SIMPLE_PREVENT_INTRINSIC_OVERFLOW_CHECK
+#define SIMPLE_ARITHMETIC_OVERFLOW_FALLBACK
+#endif
+
+#if defined SIMPLE_ARITHMETIC_OVERFLOW_FALLBACK
 #include <limits>
 #endif
 
@@ -32,10 +36,10 @@ namespace simple { namespace support
 	template<typename Int, enable_if_overflow_defined<Int>* = nullptr>
 	constexpr inline bool add_overflow(Int& result, Int one, Int two)
 	{
-#if defined __GNUC__ && !defined SIMPLE_PREVENT_INTRINSIC_OVERFLOW_CHECK
-		return __builtin_add_overflow(one, two, &result);
-#else
+#if defined SIMPLE_ARITHMETIC_OVERFLOW_FALLBACK
 		return slow_add_overflow(result, one, two);
+#else
+		return __builtin_add_overflow(one, two, &result);
 #endif
 	}
 
@@ -53,10 +57,10 @@ namespace simple { namespace support
 	template<typename Int, enable_if_overflow_defined<Int>* = nullptr>
 	constexpr inline bool sub_overflow(Int& result, Int one, Int two)
 	{
-#if defined __GNUC__ && !defined SIMPLE_PREVENT_INTRINSIC_OVERFLOW_CHECK
-		return __builtin_sub_overflow(one, two, &result);
-#else
+#if defined SIMPLE_ARITHMETIC_OVERFLOW_FALLBACK
 		return slow_sub_overflow(result, one, two);
+#else
+		return __builtin_sub_overflow(one, two, &result);
 #endif
 	}
 
@@ -70,10 +74,10 @@ namespace simple { namespace support
 	template<typename Int, enable_if_overflow_defined<Int>* = nullptr>
 	constexpr inline bool mul_overflow(Int& result, Int one, Int two)
 	{
-#if defined __GNUC__ && !defined SIMPLE_PREVENT_INTRINSIC_OVERFLOW_CHECK
-		return __builtin_mul_overflow(one, two, &result);
-#else
+#if defined SIMPLE_ARITHMETIC_OVERFLOW_FALLBACK
 		return slow_mul_overflow(result, one, two);
+#else
+		return __builtin_mul_overflow(one, two, &result);
 #endif
 	}
 

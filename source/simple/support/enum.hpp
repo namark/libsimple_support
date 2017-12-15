@@ -34,11 +34,12 @@ namespace simple { namespace support
 
 	} // namespace __Enum_Impl
 
-	template<typename Guts>
-	class Enum : public Guts
+	template<typename GutsType>
+	class Enum : public GutsType
 	{
 
 		public:
+		using Guts = GutsType;
 		using Type = typename Guts::Type;
 
 		template<typename G=Guts, std::enable_if_t<__Enum_Details::hasDefault<G>::value>* = nullptr>
@@ -73,7 +74,7 @@ namespace simple { namespace support
 		}
 
 		template<typename G=Guts, std::enable_if_t<__Enum_Details::hasToConversion<G>::value>* = nullptr>
-		explicit operator typename support::fun_return_t<decltype(G::from)>() const
+		explicit operator typename support::fun_return_t<decltype(G::to)>() const
 		{
 			// TODO: static assert one parameters
 			// TODO: static assert parameter type to be correct

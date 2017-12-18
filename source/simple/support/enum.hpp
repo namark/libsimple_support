@@ -3,6 +3,8 @@
 
 #include <type_traits>
 #include <string>
+#include <algorithm>
+#include <array>
 #include "function_utils.hpp"
 
 namespace simple { namespace support
@@ -92,6 +94,45 @@ namespace simple { namespace support
 
 	};
 
+	template <typename EnumType,
+			 EnumType DefaultEnumValue,
+			 size_t MappedValueCount = 1,
+			 typename MappedType = std::string>
+	struct mapped_enum_guts
+	{
+		using Type = EnumType;
+		using UType = std::underlying_type_t<Type>;
+		using map_type = const std::array<
+			std::array<const MappedType, MappedValueCount>,
+			static_cast<std::size_t>(DefaultEnumValue)>;
+		static constexpr auto Default = DefaultEnumValue;
+		static map_type map;
+
+		static Type from(const MappedType& value)
+		{
+			for(UType i = 0; i < static_cast<UType>(Default); ++i)
+			{
+				auto&& variants = map[i];
+				auto end = std::end(variants);
+				auto begin = std::begin(variants);
+				auto found = std::find(begin, end, value);
+				if(found != end)
+					return Type(i);
+			}
+			return Default;
+		}
+
+		static MappedType to(const Type& value)
+		{
+			return map[static_cast<UType>(value)][0];
+		}
+	};
+
+	template <typename EnumType,
+			 EnumType DefaultEnumValue,
+			 size_t MappedValueCount = 1,
+			 typename MappedType = std::string>
+	using MappedEnum = Enum<mapped_enum_guts<EnumType, DefaultEnumValue, MappedValueCount, MappedType>>;
 }} // namespace simple::support
 
 

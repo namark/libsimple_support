@@ -19,8 +19,8 @@
 /**
  *  This is a modified version of Standard C++ Library header.
  *  More functions and methods made constexpr, requiring c++14 or newer.
- *  Tuple intefacd removed, since can't work with std namespace.
  *  operator!= will use same the operator on value_type if available.
+ *  Forward declarations of tuple interface removed, relying on std::pair from utility header to declare them instead.
  */
 
 #ifndef SIMPLE_SUPPORT_ARRAY_HPP
@@ -291,40 +291,45 @@ namespace simple
 	operator>=(const array<Tp, Nm>& one, const array<Tp, Nm>& two)
 	{ return !(one < two); }
 
+
+}} // namespace simple::support
+
+namespace std // hope this is all legal... it's just specializations... specializations are legal right?
+{
 	// Specialized algorithms.
 	template<typename Tp, std::size_t Nm>
 	inline
 #if __cplusplus > 201402L || !defined(__STRICT_ANSI__) // c++1z or gnu++11
 	// Constrained free swap overload, see p0185r1
 	typename std::enable_if<
-	array_traits<Tp, Nm>::Is_swappable::value
+	simple::support::array_traits<Tp, Nm>::Is_swappable::value
 	>::type
 #else
 	void
 #endif
-	swap(array<Tp, Nm>& one, array<Tp, Nm>& two)
+	swap(simple::support::array<Tp, Nm>& one, simple::support::array<Tp, Nm>& two)
 	noexcept(noexcept(one.swap(two)))
 	{ one.swap(two); }
 
 #if __cplusplus > 201402L || !defined(__STRICT_ANSI__) // c++1z or gnu++11
 	template<typename Tp, std::size_t Nm>
 	typename std::enable_if<
-	!array_traits<Tp, Nm>::Is_swappable::value>::type
-	swap(array<Tp, Nm>&, array<Tp, Nm>&) = delete;
+	!simple::support::array_traits<Tp, Nm>::Is_swappable::value>::type
+	swap(simple::support::array<Tp, Nm>&, simple::support::array<Tp, Nm>&) = delete;
 #endif
 
 	template<std::size_t Int, typename Tp, std::size_t Nm>
 	constexpr Tp&
-	get(array<Tp, Nm>& arr) noexcept
+	get(simple::support::array<Tp, Nm>& arr) noexcept
 	{
 		static_assert(Int < Nm, "array index is within bounds");
-		return array_traits<Tp, Nm>::
+		return simple::support::array_traits<Tp, Nm>::
 		S_ref(arr.M_elems, Int);
 	}
 
 	template<std::size_t Int, typename Tp, std::size_t Nm>
 	constexpr Tp&&
-	get(array<Tp, Nm>&& arr) noexcept
+	get(simple::support::array<Tp, Nm>&& arr) noexcept
 	{
 		static_assert(Int < Nm, "array index is within bounds");
 		return std::move(std::get<Int>(arr));
@@ -332,13 +337,33 @@ namespace simple
 
 	template<std::size_t Int, typename Tp, std::size_t Nm>
 	constexpr const Tp&
-	get(const array<Tp, Nm>& arr) noexcept
+	get(const simple::support::array<Tp, Nm>& arr) noexcept
 	{
 		static_assert(Int < Nm, "array index is within bounds");
-		return array_traits<Tp, Nm>::
+		return simple::support::array_traits<Tp, Nm>::
 		S_ref(arr.M_elems, Int);
 	}
 
-}} // namespace simple::support
+	// Tuple interface to class template array.
+
+	/// Partial specialization for array
+	template<typename Tp, std::size_t Nm>
+	struct tuple_size<simple::support::array<Tp, Nm>>
+	: public integral_constant<std::size_t, Nm> { };
+
+	/// Partial specialization for array
+	template<std::size_t Int, typename Tp, std::size_t Nm>
+	struct tuple_element<Int, simple::support::array<Tp, Nm>>
+	{
+		public:
+		static_assert(Int < Nm, "index is out of bounds");
+		typedef Tp type;
+	};
+
+	template<typename Tp, std::size_t Nm>
+	struct __is_tuple_like_impl<simple::support::array<Tp, Nm>> : true_type
+	{ };
+
+}
 
 #endif /* end of include guard */

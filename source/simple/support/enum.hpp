@@ -7,10 +7,10 @@
 #include <array>
 #include "function_utils.hpp"
 
-namespace simple { namespace support
+namespace simple::support
 {
 
-	namespace __Enum_Details
+	namespace Enum_Details
 	{
 
 		template<typename Type, typename = std::nullptr_t>
@@ -37,26 +37,26 @@ namespace simple { namespace support
 	} // namespace __Enum_Impl
 
 	template<typename GutsType>
-	class Enum : public GutsType
+	class enum_wrapper : public GutsType
 	{
 
 		public:
 		using Guts = GutsType;
 		using Type = typename Guts::Type;
 
-		template<typename G=Guts, std::enable_if_t<__Enum_Details::hasDefault<G>::value>* = nullptr>
-		Enum(Type type = Guts::Default) : _type{type}
+		template<typename G=Guts, std::enable_if_t<Enum_Details::hasDefault<G>::value>* = nullptr>
+		enum_wrapper(Type type = Guts::Default) : _type{type}
 		{ }
 
-		template<typename G=Guts, std::enable_if_t<!__Enum_Details::hasDefault<G>::value>* = nullptr>
-		Enum(Type type) : _type{type}
+		template<typename G=Guts, std::enable_if_t<!Enum_Details::hasDefault<G>::value>* = nullptr>
+		enum_wrapper(Type type) : _type{type}
 		{ }
 
-		template<typename G=Guts, std::enable_if_t<!__Enum_Details::hasDefault<G>::value>* = nullptr>
-		Enum() : _type{}
+		template<typename G=Guts, std::enable_if_t<!Enum_Details::hasDefault<G>::value>* = nullptr>
+		enum_wrapper() : _type{}
 		{ }
 
-		Enum& operator=(Type type)
+		enum_wrapper& operator=(Type type)
 		{
 			_type = type;
 			return *this;
@@ -67,15 +67,15 @@ namespace simple { namespace support
 			return _type;
 		}
 
-		template<typename G=Guts, std::enable_if_t<__Enum_Details::hasFromConversion<G>::value>* = nullptr>
-		explicit Enum(const typename support::fun_param_t<decltype(G::from), 0>& name)
+		template<typename G=Guts, std::enable_if_t<Enum_Details::hasFromConversion<G>::value>* = nullptr>
+		explicit enum_wrapper(const typename support::fun_param_t<decltype(G::from), 0>& name)
 		{
 			// TODO: static assert one parameter
 			// TODO: static assert return type to be correct
 			_type = Guts::from(name);
 		}
 
-		template<typename G=Guts, std::enable_if_t<__Enum_Details::hasToConversion<G>::value>* = nullptr>
+		template<typename G=Guts, std::enable_if_t<Enum_Details::hasToConversion<G>::value>* = nullptr>
 		explicit operator typename support::fun_return_t<decltype(G::to)>() const
 		{
 			// TODO: static assert one parameters
@@ -132,8 +132,8 @@ namespace simple { namespace support
 			 EnumType DefaultEnumValue,
 			 size_t MappedValueCount = 1,
 			 typename MappedType = std::string>
-	using MappedEnum = Enum<mapped_enum_guts<EnumType, DefaultEnumValue, MappedValueCount, MappedType>>;
-}} // namespace simple::support
+	using MappedEnum = enum_wrapper<mapped_enum_guts<EnumType, DefaultEnumValue, MappedValueCount, MappedType>>;
 
+} // namespace simple::support
 
 #endif /* end of include guard */

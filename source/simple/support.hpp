@@ -4,3 +4,7 @@
 #include "support/enum.hpp"
 #include "support/arithmetic.hpp"
 #include "support/array.hpp"
+#include "support/enum_flags_operators.hpp"
+#include "support/array_operators.hpp"
+#include "support/range.hpp"
+#include "support/misc.hpp"

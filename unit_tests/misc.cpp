@@ -33,7 +33,12 @@ void StringToNumber()
 	} catch(const std::invalid_argument & e) { }
 
 	try {
-		ston<char>(std::to_string(std::numeric_limits<char>::max()) + '0');
+		ston<signed char>(std::to_string(std::numeric_limits<signed char>::max()) + '0');
+		assert( ((void)"ston did not throw an out of range exception", false) );
+	} catch(const std::out_of_range & e) { }
+
+	try {
+		ston<unsigned char>(std::to_string(std::numeric_limits<unsigned char>::max()) + '0');
 		assert( ((void)"ston did not throw an out of range exception", false) );
 	} catch(const std::out_of_range & e) { }
 }

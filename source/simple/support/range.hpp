@@ -77,19 +77,19 @@ namespace simple::support
 			upper() = max(temp[0], temp[1]);
 		}
 
-		template <typename ValueType = Type>
+		template <typename ValueType = Type, std::common_type_t<ValueType, Type>* = nullptr>
 		constexpr bool contains(const ValueType& value) const
 		{ return lower() < value && value < upper(); }
 
-		template <typename ValueType = Type>
+		template <typename ValueType = Type, std::common_type_t<ValueType, Type>* = nullptr>
 		constexpr bool intersects(const ValueType& value) const
 		{ return lower() <= value && value <= upper(); };
 
-		template <typename ValueType = Type>
+		template <typename ValueType = Type, std::common_type_t<ValueType, Type>* = nullptr>
 		constexpr bool intersects_lower(const ValueType& value) const
 		{ return lower() <= value && value < upper(); }
 
-		template <typename ValueType = Type>
+		template <typename ValueType = Type, std::common_type_t<ValueType, Type>* = nullptr>
 		constexpr bool intersects_upper(const ValueType& value) const
 		{ return lower() < value && value <= upper(); }
 
@@ -114,19 +114,19 @@ namespace simple::support
 
 	};
 
-	template <typename Type, typename ValueType = Type>
+	template <typename Type, typename ValueType = Type, std::common_type_t<ValueType, Type>* = nullptr>
 	constexpr bool contains(const range<Type>& range, const ValueType& value)
 	{ return range.contains(value); }
 
-	template <typename Type, typename ValueType>
+	template <typename Type, typename ValueType, std::common_type_t<ValueType, Type>* = nullptr>
 	constexpr bool intersects(const range<Type>& range, const ValueType& value)
 	{ return range.intersects(value); }
 
-	template <typename Type, typename ValueType>
+	template <typename Type, typename ValueType, std::common_type_t<ValueType, Type>* = nullptr>
 	constexpr bool intersects_lower(const range<Type>& range, const ValueType& value)
 	{ return range.intersects_lower(value); }
 
-	template <typename Type, typename ValueType>
+	template <typename Type, typename ValueType, std::common_type_t<ValueType, Type>* = nullptr>
 	constexpr bool intersects_upper(const range<Type>& range, const ValueType& value)
 	{ return range.intersects_upper(value); }
 

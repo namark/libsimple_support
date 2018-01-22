@@ -34,7 +34,7 @@ namespace simple::support
 		struct hasFromConversion<Type, decltype((void)Type::from, nullptr)>
 		{ static constexpr bool value = true; };
 
-	} // namespace __Enum_Impl
+	} // namespace Enum_Details
 
 	template<typename GutsType>
 	class enum_wrapper : public GutsType

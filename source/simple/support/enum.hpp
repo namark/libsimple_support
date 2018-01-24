@@ -134,7 +134,7 @@ namespace simple::support
 			 typename MappedType = std::string>
 	using MappedEnum = enum_wrapper<mapped_enum_guts<EnumType, DefaultEnumValue, MappedValueCount, MappedType>>;
 
-	template <typename Enum, typename Int = std::underlying_type<Enum>>
+	template <typename Enum, typename Int = std::underlying_type_t<Enum>>
 	constexpr Int to_integer(const Enum& value)
 	{ return static_cast<Int>(value); };
 

@@ -7,6 +7,7 @@
 #include <ostream>
 
 #include "array.hpp"
+#include "array_operators.hpp"
 
 namespace simple::support
 {
@@ -190,5 +191,30 @@ namespace simple::support
 	}
 
 } // namespace simple::support
+
+namespace simple
+{
+	template<typename T>
+	struct support::define_array_operators<support::range<T>>
+	{
+		constexpr static auto enabled_operators = array_operator::none;
+		constexpr static auto enabled_right_element_operators =
+			array_operator::add |
+			array_operator::sub |
+			array_operator::mul |
+			array_operator::div |
+			array_operator::add_eq |
+			array_operator::sub_eq |
+			array_operator::mul_eq |
+			array_operator::div_eq;
+		constexpr static auto enabled_left_element_operators = array_operator::none;
+
+		constexpr static size_t size = 2;
+		constexpr static array<T,size>& get_array(support::range<T>& r) noexcept
+		{ return r.bounds; }
+		constexpr static const array<T,size>& get_array(const support::range<T>& r) noexcept
+		{ return r.bounds; }
+	};
+} // namespace simple
 
 #endif /* end of include guard */

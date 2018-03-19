@@ -159,6 +159,33 @@ void Limit()
 		assert( !range<signed char>::limit().contains(std::numeric_limits<signed long long>::max()) );
 }
 
+void Arithmetic()
+{
+	{range<float> r{-1,1};
+		assert(( r + 0.25 == range<float>{-0.75,1.25} ));
+		r += 0.25;
+		assert(( r == range<float>{-0.75,1.25} ));
+	}
+
+	{range<float> r{-1,1};
+		assert(( r - 0.25 == range<float>{-1.25,0.75} ));
+		r -= 0.25;
+		assert(( r == range<float>{-1.25,0.75} ));
+	}
+
+	{range<float> r{-1,1};
+		assert(( r * 13 == range<float>{-13,13} ));
+		r *= 13;
+		assert(( r == range<float>{-13,13} ));
+	}
+
+	{range<float> r{-1,1};
+		assert(( r / 2 == range<float>{-0.5,0.5} ));
+		r /= 2;
+		assert(( r == range<float>{-0.5,0.5} ));
+	}
+}
+
 constexpr bool Constexprness()
 {
 	range<int> v{};
@@ -192,6 +219,14 @@ constexpr bool Constexprness()
 	v.to_iterator_range(v.bounds);
 	get_iterator_range(v.bounds, v);
 #endif
+	v += 1;
+	v = v+1;
+	v -= 1;
+	v = v-1;
+	v *= 1;
+	v = v*1;
+	v /= 1;
+	v = v/1;
 	return true;
 }
 
@@ -201,8 +236,9 @@ int main()
 	SetLikePredicates();
 	Clamping();
 	IteratorRange();
-	Constexprness();
 	Limit();
+	Arithmetic();
+	Constexprness();
 	static_assert(Constexprness());
 	return 0;
 }

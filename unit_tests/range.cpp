@@ -57,6 +57,18 @@ void SetLikePredicates()
 	assert(!covers(r, {-21, r.upper()}));
 	assert(covers(r, r));
 
+	assert(overlaps(r, {12, 21}));
+	assert(overlaps(r, {-21, 53}));
+	assert(overlaps(r, {r.lower(), 0}));
+	assert(overlaps(r, {r.lower(), 53}));
+	assert(overlaps(r, {0, r.upper()}));
+	assert(overlaps(r, {-21, r.upper()}));
+	assert(!overlaps(r, {r.upper(), 102}));
+	assert(!overlaps(r, {-102, r.lower()}));
+	assert(overlaps(r, r));
+	assert(!overlaps(r, {67, 102}));
+	assert(!overlaps(r, {-67, -102}));
+
 	assert(intersects(r, {12, 21}));
 	assert(intersects(r, {-21, 53}));
 	assert(intersects(r, {r.lower(), 0}));
@@ -206,6 +218,7 @@ constexpr bool Constexprness()
 	covers(v, v);
 	intersects(v, i);
 	intersects(v, v);
+	overlaps(v, v);
 	intersects_lower(v, i);
 	intersects_upper(v, i);
 	v.contains(i);
@@ -213,6 +226,7 @@ constexpr bool Constexprness()
 	v.covers(v);
 	v.intersects(i);
 	v.intersects(v);
+	v.overlaps(v);
 	v.intersects_lower(i);
 	v.intersects_upper(i);
 #if ! defined __clang__ // clang 5.0.1-svn319952-1~exp1 (branches/release_50) has problem with the two below for some reason... feels like a bug
@@ -238,7 +252,6 @@ int main()
 	IteratorRange();
 	Limit();
 	Arithmetic();
-	Constexprness();
 	static_assert(Constexprness());
 	return 0;
 }

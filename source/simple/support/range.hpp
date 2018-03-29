@@ -101,6 +101,9 @@ namespace simple::support
 		constexpr bool covers(const range& other) const
 		{ return lower() <= other.lower() && other.upper() <= upper(); }
 
+		constexpr bool overlaps(const range& other) const
+		{ return lower() < other.upper() && upper() > other.lower(); }
+
 		constexpr bool intersects(const range& other) const
 		{ return lower() <= other.upper() && upper() >= other.lower(); }
 		// { return intersection(other).valid(); } // why is the cool way always inefficient :/
@@ -139,6 +142,10 @@ namespace simple::support
 	template <typename Type>
 	constexpr bool covers(const range<Type>& one, const range<Type>& other)
 	{ return one.covers(other); }
+
+	template <typename Type>
+	constexpr bool overlaps(const range<Type>& one, const range<Type>& other)
+	{ return one.overlaps(other); }
 
 	template <typename Type>
 	constexpr bool intersects(const range<Type>& one, const range<Type>& other)

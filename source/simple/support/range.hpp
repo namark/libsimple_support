@@ -56,16 +56,15 @@ namespace simple::support
 		template <typename T = Type, std::enable_if_t<range_based_for_loopable<T>{}>...>
 		constexpr Type end() const noexcept { return upper(); }
 
-		template<typename Container>
-		constexpr auto to_iterator_range(Container& container) const
-		-> range<decltype(container.begin())>
+		template<typename Range>
+		constexpr range sub_range(const Range& other) const
 		{
-			range<decltype(container.begin())> result
+			range result
 			{
-				container.begin() + lower(),
-				container.begin() + upper()
+				lower() + other.lower(),
+				lower() + other.upper()
 			};
-			clamp_in_place(result, {container.begin(), container.end()});
+			clamp_in_place(result, {lower(), upper()});
 			return result;
 		}
 
@@ -190,12 +189,10 @@ namespace simple::support
 		return v;
 	}
 
-	template<typename Index = std::size_t, typename Container>
-	constexpr
-	auto get_iterator_range(Container& container, const range<Index>& index_range)
-	-> range<decltype(container.begin())>
+	template<typename T>
+	constexpr range<T> make_range(T&& lower, T&& upper)
 	{
-		return index_range.to_iterator_range(container);
+		return range<T>{std::forward<T>(lower), std::forward<T>(upper)};
 	}
 
 } // namespace simple::support

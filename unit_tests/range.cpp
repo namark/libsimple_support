@@ -111,28 +111,17 @@ void Clamping()
 	assert((range<int>{-4, 5} == b));
 }
 
-void IteratorRange()
+void SubRange()
 {
-	array<int, 10> arr {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-	array<int, 5> sub_array{3, 4, 5, 6, 7};
-	array<int, 5> sub_array_2{5, 6, 7, 8, 9};
-	array<int, 5> sub_array_3{0, 1, 2, 3, 4};
+	range<int> rng {0, 9};
+	range<int> sub_rng{3, 8};
+	range<int> sub_rng_2{5, 9};
+	range<int> sub_rng_3{0, 5};
 
-	int i = 0;
-	for(auto&& element : get_iterator_range(arr, {3, 8}))
-		assert(sub_array[i++] == element);
-
-	i = 0;
-	for(auto&& element : get_iterator_range(arr, {5, 800}))
-		assert(sub_array_2[i++] == element);
-
-	i = 0;
-	for(auto&& element : get_iterator_range<int>(arr, {-105, 5}))
-		assert(sub_array_3[i++] == element);
-
-	i = 0;
-	for(auto&& element : get_iterator_range<int>(arr, {-105, 105}))
-		assert(arr[i++] == element);
+	assert( sub_rng == rng.sub_range(make_range(3, 8)) );
+	assert( sub_rng_2 == rng.sub_range(make_range(5, 800)) );
+	assert( sub_rng_3 == rng.sub_range(make_range(-105, 5)) );
+	assert( rng == rng.sub_range(make_range(-105, 105)) );
 }
 
 template <typename Larger, typename Smaller>
@@ -229,10 +218,7 @@ constexpr bool Constexprness()
 	v.overlaps(v);
 	v.intersects_lower(i);
 	v.intersects_upper(i);
-#if ! defined __clang__ // clang 5.0.1-svn319952-1~exp1 (branches/release_50) has problem with the two below for some reason... feels like a bug
-	v.to_iterator_range(v.bounds);
-	get_iterator_range(v.bounds, v);
-#endif
+	v.sub_range(v);
 	v += 1;
 	v = v+1;
 	v -= 1;
@@ -249,7 +235,7 @@ int main()
 	Validity();
 	SetLikePredicates();
 	Clamping();
-	IteratorRange();
+	SubRange();
 	Limit();
 	Arithmetic();
 	static_assert(Constexprness());

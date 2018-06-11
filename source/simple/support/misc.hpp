@@ -111,6 +111,12 @@ namespace simple::support
 		return to_string(r.lower()) + separator + to_string(r.upper());
 	}
 
+	template <typename It>
+	std::string_view make_string_view(It begin, It end)
+	{
+		return {begin, static_cast<std::string_view::size_type>(end - begin)};
+	}
+
 } // namespace simple::support
 
 #endif /* end of include guard */

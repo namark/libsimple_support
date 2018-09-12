@@ -11,5 +11,9 @@ int main()
 	static_assert(car<ints, 3>() == 999);
 	static_assert(car<lisp_list<int>>(321) == 321);
 	static_assert(car<ints, 10>(9517) == 9517); // *shrug*
+
+	constexpr auto t = std::make_tuple(true, 1.5, 5);
+	static_assert(tuple_car(t));
+	static_assert(1.5 == tuple_car(tuple_cdr(t)));
 	return 0;
 }

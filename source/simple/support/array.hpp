@@ -18,9 +18,12 @@
 
 /**
  *  This is a modified version of Standard C++ Library header.
- *  More functions and methods made constexpr, requiring c++14 or newer.
+ *  More functions and methods made constexpr.
+ *  c++17 specific features enabled unconditionally.
  *  operator!= will use same the operator on value_type if available.
- *  Forward declarations of tuple interface removed, relying on std::pair from utility header to declare them instead.
+ *  Anything that would be considered UB outside of std removed,
+ *  including specializations of tuple interface; similar interface
+ *  defined for use with ADL.
  */
 
 #ifndef SIMPLE_SUPPORT_ARRAY_HPP
@@ -45,8 +48,8 @@ namespace simple
 	struct array_traits
 	{
 		typedef Tp Type[Nm];
-		typedef std::__is_swappable<Tp> Is_swappable;
-		typedef std::__is_nothrow_swappable<Tp> Is_nothrow_swappable;
+		typedef std::is_swappable<Tp> Is_swappable;
+		typedef std::is_nothrow_swappable<Tp> Is_nothrow_swappable;
 
 		static constexpr Tp&
 		S_ref(const Type& t, std::size_t n) noexcept
@@ -232,12 +235,10 @@ namespace simple
 		{ return AT_Type::S_ptr(M_elems); }
 	};
 
-#if __cpp_deduction_guides >= 201606
 	template<typename Tp, typename... Up>
 	array(Tp, Up...)
 	-> array<std::enable_if_t<(std::is_same_v<Tp, Up> && ...), Tp>,
 	1 + sizeof...(Up)>;
-#endif
 
 	// Array comparisons.
 
@@ -291,32 +292,21 @@ namespace simple
 	operator>=(const array<Tp, Nm>& one, const array<Tp, Nm>& two)
 	{ return !(one < two); }
 
-
-}} // namespace simple::support
-
-namespace std // hope this is all legal... it's just specializations... specializations are legal right?
-{
 	// Specialized algorithms.
 	template<typename Tp, std::size_t Nm>
 	inline
-#if __cplusplus > 201402L || !defined(__STRICT_ANSI__) // c++1z or gnu++11
 	// Constrained free swap overload, see p0185r1
 	typename std::enable_if<
 	simple::support::array_traits<Tp, Nm>::Is_swappable::value
 	>::type
-#else
-	void
-#endif
 	swap(simple::support::array<Tp, Nm>& one, simple::support::array<Tp, Nm>& two)
 	noexcept(noexcept(one.swap(two)))
 	{ one.swap(two); }
 
-#if __cplusplus > 201402L || !defined(__STRICT_ANSI__) // c++1z or gnu++11
 	template<typename Tp, std::size_t Nm>
 	typename std::enable_if<
 	!simple::support::array_traits<Tp, Nm>::Is_swappable::value>::type
 	swap(simple::support::array<Tp, Nm>&, simple::support::array<Tp, Nm>&) = delete;
-#endif
 
 	template<std::size_t Int, typename Tp, std::size_t Nm>
 	constexpr Tp&
@@ -344,26 +334,25 @@ namespace std // hope this is all legal... it's just specializations... speciali
 		S_ref(arr.M_elems, Int);
 	}
 
-	// Tuple interface to class template array.
+	// Tuple interface
+	template<typename Tp>
+	struct tuple_size;
 
-	/// Partial specialization for array
+	template<std::size_t I, typename Tp>
+	struct tuple_element;
+
 	template<typename Tp, std::size_t Nm>
 	struct tuple_size<simple::support::array<Tp, Nm>>
-	: public integral_constant<std::size_t, Nm> { };
+	: public std::integral_constant<std::size_t, Nm> { };
 
-	/// Partial specialization for array
-	template<std::size_t Int, typename Tp, std::size_t Nm>
-	struct tuple_element<Int, simple::support::array<Tp, Nm>>
+	template<std::size_t I, typename Tp, std::size_t Nm>
+	struct tuple_element<I, simple::support::array<Tp, Nm>>
 	{
 		public:
-		static_assert(Int < Nm, "index is out of bounds");
+		static_assert(I < Nm, "index is out of bounds");
 		typedef Tp type;
 	};
 
-	template<typename Tp, std::size_t Nm>
-	struct __is_tuple_like_impl<simple::support::array<Tp, Nm>> : true_type
-	{ };
-
-}
+}} // namespace simple::support
 
 #endif /* end of include guard */

@@ -31,6 +31,9 @@ namespace simple { namespace support
 	template <typename ReturnType, typename... ArgumentType>
 	inline constexpr ReturnType nop(ArgumentType...) {}
 
+	template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+	template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+
 }} // namespace simple.support
 
 #endif /* end of include guard */

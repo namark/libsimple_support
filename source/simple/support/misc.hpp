@@ -5,7 +5,7 @@
 #include <limits>
 #include <stdexcept>
 #include <string>
-#include <istream>
+#include <optional>
 
 #include "range.hpp"
 
@@ -75,6 +75,22 @@ namespace simple::support
 	N ston(const std::string& s, std::size_t start_index = 0)
 	{
 		return ston<N>(s, &start_index);
+	}
+
+	template <typename N>
+	std::optional<N> to_(const std::string& s)
+	{
+		static_assert(std::is_arithmetic_v<N>, "simple::support::to_number expects an arithmetic type!");
+		errno = 0;
+		const char* start = s.c_str();
+		char* end;
+		N result = strton<N>(start, &end);
+		if(ERANGE == errno)
+			return std::nullopt;
+		auto diff = end - start;
+		if(!diff)
+			return std::nullopt;
+		return result;
 	}
 
 	template <typename N>

@@ -77,14 +77,14 @@ namespace simple::support
 		return ston<N>(s, &start_index);
 	}
 
-	template <typename N>
-	std::optional<N> to_(const std::string& s)
+	template <typename Number>
+	std::optional<Number> to_(const std::string& s)
 	{
-		static_assert(std::is_arithmetic_v<N>, "simple::support::to_number expects an arithmetic type!");
+		static_assert(std::is_arithmetic_v<Number>, "simple::support::to_<Number> expects an arithmetic type!");
 		errno = 0;
 		const char* start = s.c_str();
 		char* end;
-		N result = strton<N>(start, &end);
+		Number result = strton<Number>(start, &end);
 		if(ERANGE == errno)
 			return std::nullopt;
 		auto diff = end - start;

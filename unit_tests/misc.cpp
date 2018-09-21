@@ -83,10 +83,29 @@ void NumericRangeToString()
 	assert( tos(-12.34) + '-' + tos(12.34) == tos(range<double>{-12.34,12.34}) );
 }
 
+void SimplifiedToNumber()
+{
+	assert( 123 == *to_<int>("123") );
+	assert( -0xabc == *to_<int>("-0xabc") );
+	assert( -0123 == *to_<int>("-0123") );
+	assert( 123.123f == *to_<float>(tos(123.123f)) );
+	assert( -123.123 == *to_<double>(tos(-123.123)) );
+	assert( 123.123l == *to_<long double>(tos(123.123l)) );
+	assert( 123 == *to_<int>("123xyz") );
+
+	assert(std::nullopt == to_<int>("abc123"));
+
+	assert(std::nullopt ==
+		to_<signed char>(std::to_string(std::numeric_limits<signed char>::max()) + '0'));
+	assert(std::nullopt ==
+		to_<unsigned char>(std::to_string(std::numeric_limits<unsigned char>::max()) + '0'));
+}
+
 int main()
 {
 	StringToNumber();
 	StringToNumericRange();
 	NumericRangeToString();
+	SimplifiedToNumber();
 	return 0;
 }

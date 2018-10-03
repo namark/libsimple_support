@@ -26,8 +26,8 @@ namespace simple { namespace support
 	constexpr inline bool slow_add_overflow(Int& result, Int one, Int two)
 	{
 		result = one + two;
-		const Int max = std::numeric_limits<Int>::max();
-		const Int min = std::numeric_limits<Int>::min();
+		constexpr Int max = std::numeric_limits<Int>::max();
+		constexpr Int min = std::numeric_limits<Int>::min();
 		return (one >= 0)
 			? two > (max - one)
 			: two < (min - one);
@@ -47,8 +47,8 @@ namespace simple { namespace support
 	constexpr inline bool slow_sub_overflow(Int& result, Int one, Int two)
 	{
 		result = one - two;
-		const Int max = std::numeric_limits<Int>::max();
-		const Int min = std::numeric_limits<Int>::min();
+		constexpr Int max = std::numeric_limits<Int>::max();
+		constexpr Int min = std::numeric_limits<Int>::min();
 		return (two >= 0)
 			? two + min > one
 			: two + max < one;

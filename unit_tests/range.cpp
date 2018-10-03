@@ -142,7 +142,7 @@ void limits_check_containment(std::mt19937_64 & generator)
 void Limit()
 {
 	auto seed = std::random_device{}();
-	std::cout << "Range limit random test seed: " << std::hex << std::showbase << seed << '\n';
+	std::cout << "Range limit random test seed: " << std::hex << std::showbase << seed << std::endl;
 	std::mt19937_64 generator(seed);
 	limits_check_containment<signed char, signed char>(generator);
 	limits_check_containment<signed short, signed char>(generator);

@@ -116,11 +116,11 @@ namespace simple::support::random::distribution
 			return !(*this == other);
 		}
 
-		template <typename Ostream, typename B, size_t D, diagonal_side S>
-		friend Ostream& operator<<(Ostream&, const diagonal<B, D, S>&);
+		template <typename C, typename T, typename B, size_t D, diagonal_side S>
+		friend std::basic_ostream<C,T>& operator<<(std::basic_ostream<C,T>&, const diagonal<B,D,S>&);
 
-		template <typename Istream, typename B, size_t D, diagonal_side S>
-		friend Istream& operator>>(Istream&, diagonal<B, D, S>&);
+		template <typename C, typename T, typename B, size_t D, diagonal_side S>
+		friend std::basic_istream<C,T>& operator>>(std::basic_istream<C,T>&, diagonal<B,D,S>&);
 
 		private:
 		constexpr static size_t buffer_size(size_t dimensions, diagonal_side side)
@@ -131,8 +131,8 @@ namespace simple::support::random::distribution
 		size_t current_index = 0;
 	};
 
-	template <typename Ostream, typename Base, size_t Dimensions, diagonal_side Side>
-	Ostream& operator<<(Ostream& os, const diagonal<Base, Dimensions, Side>& d)
+	template <typename C, typename T, typename Base, size_t Dimensions, diagonal_side S>
+	std::basic_ostream<C,T>& operator<<(std::basic_ostream<C,T>& os, const diagonal<Base,Dimensions,S>& d)
 	{
 		auto precision = os.precision();
 		auto flags = os.flags();
@@ -150,8 +150,8 @@ namespace simple::support::random::distribution
 		return os;
 	}
 
-	template <typename Istream, typename Base, size_t Dimensions, diagonal_side Side>
-	Istream& operator>>(Istream& os, diagonal<Base, Dimensions, Side>& d)
+	template <typename C, typename T, typename Base, size_t Dimensions, diagonal_side S>
+	std::basic_istream<C,T>& operator>>(std::basic_istream<C,T>& os, diagonal<Base,Dimensions,S>& d)
 	{
 		auto precision = os.precision();
 		auto flags = os.flags();

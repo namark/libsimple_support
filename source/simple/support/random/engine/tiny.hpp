@@ -98,16 +98,16 @@ namespace simple::support::random::engine
 			return this->Base::operator!=(other);
 		}
 
-		template <typename Ostream, typename I>
-		friend Ostream& operator<<(Ostream&, const tiny<I>&);
+		template <typename C, typename T, typename I>
+		friend std::basic_ostream<C,T> & operator<<(std::basic_ostream<C,T>&, const tiny<I>&);
 
-		template <typename Istream, typename I>
-		friend Istream& operator>>(Istream&, tiny<I>&);
+		template <typename C, typename T, typename I>
+		friend std::basic_istream<C,T>& operator>>(std::basic_istream<C,T>&, tiny<I>&);
 
 	};
 
-	template <typename Ostream, typename I>
-	Ostream& operator<<(Ostream& os, const tiny<I>& t)
+	template <typename C, typename T, typename I>
+	std::basic_ostream<C,T> & operator<<(std::basic_ostream<C,T>& os, const tiny<I>& t)
 	{
 		os << t.buffer[0];
 		os << ' ';
@@ -115,8 +115,8 @@ namespace simple::support::random::engine
 		return os;
 	}
 
-	template <typename Istream, typename I>
-	Istream& operator>>(Istream& is, tiny<I>& t)
+	template <typename C, typename T, typename I>
+	std::basic_istream<C,T>& operator>>(std::basic_istream<C,T>& is, tiny<I>& t)
 	{
 		is >> t.buffer[0];
 		is >> t.buffer[1];

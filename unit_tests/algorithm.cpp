@@ -1,5 +1,6 @@
 #include <cassert>
 #include <vector>
+#include <numeric>
 #include "simple/support/algorithm.hpp"
 
 using namespace simple::support;
@@ -67,6 +68,25 @@ void IteratorRange()
 		assert(arr[i++] == element);
 }
 
+void Variance()
+{
+	array<int, 10> arr {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+	auto var = arr;
+	assert( variance(var).end() == var.end()-1 );
+	assert( (var == array<int, 10>{1, 1, 1, 1, 1, 1, 1, 1, 1, 9}) );
+
+	auto pair_sum = arr;
+	variance(pair_sum, std::plus{});
+	assert( (pair_sum == array<int, 10>{1, 3, 5, 7, 9, 11, 13, 15, 17, 9}) );
+
+	array<int, 40> fib {1};
+	std::adjacent_difference(fib.begin(), fib.end()-1, fib.begin()+1, std::plus{});
+	auto varfib = fib;
+	variance(varfib);
+	assert( (std::equal(varfib.begin()+1, varfib.end() -1, fib.begin())) );
+}
+
 constexpr bool Constexprness()
 {
 	range<int> v{};
@@ -75,6 +95,7 @@ constexpr bool Constexprness()
 	reverse_range(v.bounds);
 	next_number(v.bounds);
 	prev_number(v.bounds);
+	variance(v.bounds);
 	return true;
 }
 
@@ -82,6 +103,7 @@ int main()
 {
 	ContainerAsNumber();
 	IteratorRange();
+	Variance();
 	static_assert(Constexprness());
 	return 0;
 }

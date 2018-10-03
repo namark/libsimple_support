@@ -48,13 +48,9 @@ namespace simple::support
 		}
 
 		template <typename T = Type, std::enable_if_t<range_based_for_loopable<T>{}>...>
-		constexpr Type& begin() noexcept { return lower(); }
+		constexpr Type begin() const { return lower(); }
 		template <typename T = Type, std::enable_if_t<range_based_for_loopable<T>{}>...>
-		constexpr Type begin() const noexcept { return lower(); }
-		template <typename T = Type, std::enable_if_t<range_based_for_loopable<T>{}>...>
-		constexpr Type& end() noexcept { return upper(); }
-		template <typename T = Type, std::enable_if_t<range_based_for_loopable<T>{}>...>
-		constexpr Type end() const noexcept { return upper(); }
+		constexpr Type end() const { return upper(); }
 
 		template<typename Range>
 		constexpr range sub_range(const Range& other) const

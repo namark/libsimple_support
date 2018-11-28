@@ -4,6 +4,7 @@
 #include <climits>
 #include <type_traits>
 #include <iterator>
+#include <array>
 #include "simple/support/random/engine/basic_tiny.hpp"
 
 namespace simple::support::random::engine
@@ -56,7 +57,8 @@ namespace simple::support::random::engine
 		{}
 
 		constexpr void seed(result_type seed) noexcept { this->buffer = {seed}; }
-		constexpr void seed(buffer_type seed) noexcept { this->buffer = seed; }
+		constexpr void seed(const std::array<result_type, 2>& seed) noexcept
+		{ std::copy(seed.begin(), seed.end(), this->buffer); }
 
 		template<typename Generator, can_generate_t<Generator> = nullptr>
 		constexpr void seed(Generator& gen) // noexcept(bla bla bla)

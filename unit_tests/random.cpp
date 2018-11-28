@@ -94,6 +94,13 @@ void TinyEngine()
 	assert(t2 == t);
 	for(int i = 0; i < 10000; ++i)
 		assert(t() == t2());
+
+	t.seed({1,2});
+	ss.clear();
+	ss.str("1 2");
+	tiny<unsigned long long> t3{};
+	ss >> t3;
+	assert( t == t3 );
 }
 
 void NaiveDistributions()

@@ -13,10 +13,15 @@ void Validity()
 	assert(valid_range.valid());
 
 	range<int> invalid_range{valid_range.upper(), valid_range.lower()};
+	const range<int> const_invalid_range = invalid_range;
 	assert(!invalid_range.valid());
+	assert(!const_invalid_range.valid());
 	invalid_range.fix();
+	const range<int> const_valid_range = const_invalid_range.fix();
 	assert(invalid_range.valid());
 	assert(invalid_range == valid_range);
+	assert(const_valid_range.valid());
+	assert(const_valid_range == valid_range);
 }
 
 void SetLikePredicates()
@@ -197,6 +202,8 @@ constexpr bool Constexprness()
 	};
 	if(!v.valid())
 		v.fix();
+	const range<int> cv = v;
+	v = cv.fix();
 	clamp_in_place(v, {12,13});
 	int i = 1;
 	clamp_in_place(i, v);

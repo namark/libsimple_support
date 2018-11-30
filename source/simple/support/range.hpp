@@ -74,6 +74,14 @@ namespace simple::support
 			upper() = max(temp[0], temp[1]);
 		}
 
+		[[nodiscard]]
+		constexpr range fix() const
+		{
+			range result = *this;
+			result.fix();
+			return result;
+		}
+
 		template <typename ValueType = Type, std::common_type_t<ValueType, Type>* = nullptr>
 		constexpr bool contains(const ValueType& value) const
 		{ return lower() < value && value < upper(); }

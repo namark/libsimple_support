@@ -65,21 +65,27 @@ namespace simple::support
 		}
 
 		constexpr bool valid() const { return lower() <= upper(); }
-		constexpr void fix()
+		constexpr range& fix() &
 		{
 			using std::min;
 			using std::max;
 			auto temp = bounds;
 			lower() = min(temp[0], temp[1]);
 			upper() = max(temp[0], temp[1]);
+			return *this;
 		}
 
 		[[nodiscard]]
-		constexpr range fix() const
+		constexpr range fix() &&
 		{
-			range result = *this;
-			result.fix();
-			return result;
+			this->fix();
+			return *this;
+		}
+
+		[[nodiscard]]
+		constexpr range fix() const &
+		{
+			return range{*this}.fix();
 		}
 
 		template <typename ValueType = Type, std::common_type_t<ValueType, Type>* = nullptr>

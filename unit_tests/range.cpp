@@ -7,28 +7,28 @@ using namespace simple::support;
 
 void Validity()
 {
-	range<int> valid_range{-13,31};
+	range valid_range{-13,31};
 	assert(valid_range.valid());
 	valid_range.fix();
 	assert(valid_range.valid());
 
-	range<int> invalid_range{valid_range.upper(), valid_range.lower()};
-	const range<int> const_invalid_range = invalid_range;
+	range invalid_range{valid_range.upper(), valid_range.lower()};
+	const range const_invalid_range = invalid_range;
 	assert(!invalid_range.valid());
 	assert(!const_invalid_range.valid());
 	invalid_range.fix();
-	const range<int> const_valid_range = const_invalid_range.fix();
+	const range const_valid_range = const_invalid_range.fix();
 	assert(invalid_range.valid());
 	assert(invalid_range == valid_range);
 	assert(const_valid_range.valid());
 	assert(const_valid_range == valid_range);
 
-	assert(( const_valid_range == range<int>{31,-13}.fix() ));
+	assert(( const_valid_range == range{31,-13}.fix() ));
 }
 
 void SetLikePredicates()
 {
-	range<int> r{-13,31};
+	range r{-13,31};
 
 	assert(contains(r, 2));
 	assert(!contains(r, 45));
@@ -88,9 +88,9 @@ void SetLikePredicates()
 	assert(!intersects(r, {67, 102}));
 	assert(!intersects(r, {-67, -102}));
 
-	assert(( intersection(r, {12,56}) == range<int>{12,31} ));
-	assert(( intersection(r, {12,22}) == range<int>{12,22} ));
-	assert(( intersection(r, {-31,13}) == range<int>{-13,13} ));
+	assert(( intersection(r, {12,56}) == range{12,31} ));
+	assert(( intersection(r, {12,22}) == range{12,22} ));
+	assert(( intersection(r, {-31,13}) == range{-13,13} ));
 	assert(( !intersection(r, {-31,-21}).valid() ));
 	assert(( !intersection(r, {32,52}).valid() ));
 
@@ -104,26 +104,28 @@ void Clamping()
 	clamp_in_place(a, {-13, 13});
 	assert(13 == a);
 
-	assert((clamp(range<int>{-13, 13}, {-3, 3}) == range<int>{-3, 3}));
-	assert((clamp(range<int>{-13, 2}, {-3, 3}) == range<int>{-3, 2}));
-	assert((clamp(range<int>{0, 2}, {-3, 3}) == range<int>{0, 2}));
-	range<int> b{-13, 13};
+	assert((clamp(range{-13, 13}, {-3, 3}) == range{-3, 3}));
+	assert((clamp(range{-13, 2}, {-3, 3}) == range{-3, 2}));
+	assert((clamp(range{0, 2}, {-3, 3}) == range{0, 2}));
+
+	// clang version 7.0.0-svn345923-1~exp1~20181102032948.33 chokes on these without the bool casts
+	range b{-13, 13};
 	clamp_in_place(b, {-10, 10});
-	assert((range<int>{-10, 10} == b));
+	assert(bool(range{-10, 10} == b));
 	clamp_in_place(b, {-20, 5});
-	assert((range<int>{-10, 5} == b));
+	assert(bool(range{-10, 5} == b));
 	clamp_in_place(b, {-4, 50});
-	assert((range<int>{-4, 5} == b));
+	assert(bool(range{-4, 5} == b));
 	clamp_in_place(b, {-40, 50});
-	assert((range<int>{-4, 5} == b));
+	assert(bool(range{-4, 5} == b));
 }
 
 void SubRange()
 {
-	range<int> rng {0, 9};
-	range<int> sub_rng{3, 8};
-	range<int> sub_rng_2{5, 9};
-	range<int> sub_rng_3{0, 5};
+	range rng {0, 9};
+	range sub_rng{3, 8};
+	range sub_rng_2{5, 9};
+	range sub_rng_3{0, 5};
 
 	assert( sub_rng == rng.sub_range(make_range(3, 8)) );
 	assert( sub_rng_2 == rng.sub_range(make_range(5, 800)) );

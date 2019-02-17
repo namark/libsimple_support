@@ -75,7 +75,7 @@ namespace simple::support
 	{
 		constexpr T1& operator()(T1& one, const T2& other) const
 		{
-			if constexpr (std::is_floating_point_v<T1> || std::is_floating_point_v<T2>)
+			if constexpr (std::is_floating_point_v<T1> && std::is_floating_point_v<T2>)
 				return one = std::fmod(one, other);
 			else
 				return one %= other;
@@ -111,7 +111,7 @@ namespace simple::support
 	{
 		constexpr auto operator()(const T1& one, const T2& other) const
 		{
-			if constexpr (std::is_floating_point_v<T1> || std::is_floating_point_v<T2>)
+			if constexpr (std::is_floating_point_v<T1> && std::is_floating_point_v<T2>)
 				return std::fmod(one, other);
 			else
 				return one % other;

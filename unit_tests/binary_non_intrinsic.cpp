@@ -1,0 +1,2 @@
+#define SIMPLE_SUPPORT_BINARY_DISABLE_INTRINSICS
+#include "binary.cpp"

@@ -17,7 +17,7 @@ namespace simple { namespace support
 {
 
 	template <typename Int, std::enable_if_t<std::is_integral_v<Int>>* = nullptr>
-	constexpr int count_trailing_zeros(Int in)
+	constexpr int count_trailing_zeros(Int in) noexcept
 	{
 		assert(in && "Input must not be zero.");
 		constexpr auto size = sizeof(Int);
@@ -37,7 +37,7 @@ namespace simple { namespace support
 	}
 
 	template <typename Int, std::enable_if_t<std::is_integral_v<Int>>* = nullptr>
-	constexpr int count_ones(Int in)
+	constexpr int count_ones(Int in) noexcept
 	{
 		constexpr auto size = sizeof(Int);
 #if !defined SIMPLE_SUPPORT_BINARY_DISABLE_INTRINSICS
@@ -57,7 +57,7 @@ namespace simple { namespace support
 	}
 
 	template <typename T>
-	constexpr std::size_t bit_count(const T&)
+	constexpr std::size_t bit_count(const T&) noexcept
 	{
 		return sizeof(T) * CHAR_BIT;
 	}

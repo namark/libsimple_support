@@ -7,6 +7,41 @@
 namespace simple::support
 {
 
+	template <typename Itr, typename BoundsItr>
+	constexpr Itr advance_vector(Itr begin, Itr end, BoundsItr lower_begin, BoundsItr upper_begin)
+	{
+		while(begin != end)
+		{
+			++(*begin); // TODO: add step parameter
+			if(*begin < *upper_begin)
+				break;
+			*begin = *lower_begin;
+			++begin;
+			++lower_begin;
+			++upper_begin;
+		}
+		return begin;
+	}
+
+	template <typename Range, typename BoundsRange>
+	constexpr auto advance_vector(Range& range, BoundsRange lower, BoundsRange upper)
+	{
+		using std::begin;
+		using std::end;
+		using std::distance;
+		auto range_begin = begin(range);
+		auto range_end = end(range);
+		auto upper_begin = begin(upper);
+		auto upper_end = end(upper);
+		auto lower_begin = begin(lower);
+		auto lower_end = end(lower);
+		assert(distance(range_begin, range_end) == distance(upper_begin, upper_end));
+		assert(distance(range_begin, range_end) == distance(lower_begin, lower_end));
+		return advance_vector(range_begin, range_end, lower_begin, upper_begin);
+	}
+
+	// TODO: next number can be implemented using advance_vector, wrapping the constants base in iterators,
+	// but i'm not sure about it, would it optimize well??
 	template <typename Itr, typename Num = int>
 	constexpr Itr next_number(Itr begin, Itr end, Num base = 2)
 	{

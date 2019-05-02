@@ -5,6 +5,32 @@
 
 using namespace simple::support;
 
+void MultidimentionalIteration()
+{
+	using std::rbegin;
+	using std::rend;
+	using Vector = std::array<int, 3>;
+	const auto lower = Vector{13,3,-20};
+	const auto upper = Vector{45,32,12};
+
+	std::vector<Vector> test_data;
+	for(int k = lower[2]; k < upper[2]; ++k)
+		for(int j = lower[1]; j < upper[1]; ++j)
+			for(int i = lower[0]; i < upper[0]; ++i)
+				test_data.push_back({i,j,k});
+
+
+	std::vector<Vector> data;
+	auto i = lower;
+	auto magnitude = i.begin();
+	while(magnitude != i.end())
+	{
+		data.push_back(i);
+		magnitude = advance_vector(i, lower, upper);
+	}
+
+	assert(data == test_data);
+}
 
 void ContainerAsNumber()
 {
@@ -93,6 +119,7 @@ constexpr bool Constexprness()
 	get_iterator_range(v.bounds, v);
 	make_range(v.bounds);
 	reverse_range(v.bounds);
+	advance_vector(v.bounds, v.bounds, v.bounds);
 	next_number(v.bounds);
 	prev_number(v.bounds);
 	variance(v.bounds);
@@ -101,6 +128,7 @@ constexpr bool Constexprness()
 
 int main()
 {
+	MultidimentionalIteration();
 	ContainerAsNumber();
 	IteratorRange();
 	Variance();

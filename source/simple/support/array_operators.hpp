@@ -279,7 +279,7 @@ namespace AOps_Details
 } // namespace simple::support
 
 // well, ended up with  macros after all... and still lots of duplication
-// either get rid of macros or make better use of them
+// FIXME: either get rid of macros or make better use of them
 
 #define SIMPLE_SUPPORT_DEFINE_UNARY_OPERATOR(op_symbol, op_type, op_fun) \
 template <typename Array, \

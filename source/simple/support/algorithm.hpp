@@ -1,6 +1,7 @@
 #ifndef SIMPLE_SUPPORT_ALGORITHM_HPP
 #define SIMPLE_SUPPORT_ALGORITHM_HPP
 #include <iterator>
+#include <cassert>
 
 #include "range.hpp"
 

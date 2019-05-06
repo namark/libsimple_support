@@ -7,37 +7,94 @@
 namespace simple::support
 {
 
-	template <typename Itr, typename BoundsItr>
-	constexpr Itr advance_vector(Itr begin, Itr end, BoundsItr lower_begin, BoundsItr upper_begin)
+	namespace detail
+	{
+
+		class increment_step
+		{
+			public:
+			void operator*() const noexcept;
+			void operator++() const noexcept;
+		};
+
+	} // namespace detail
+
+	template <typename Itr, typename BoundsItr, typename StepItr>
+	constexpr auto advance_vector(Itr begin, Itr end, BoundsItr lower_begin, BoundsItr upper_begin, StepItr step_begin) -> std::remove_reference_t<decltype
+	(
+		*begin, ++begin,
+		*lower_begin, ++lower_begin,
+		*step_begin, ++step_begin,
+		begin
+	)>
 	{
 		while(begin != end)
 		{
-			++(*begin); // TODO: add step parameter
+			if constexpr (std::is_same_v<StepItr, detail::increment_step>)
+				++(*begin);
+			else
+				*begin += *step_begin;
+
 			if(*begin < *upper_begin)
 				break;
 			*begin = *lower_begin;
 			++begin;
 			++lower_begin;
 			++upper_begin;
+			if constexpr (!std::is_same_v<StepItr, detail::increment_step>)
+				++step_begin;
 		}
 		return begin;
 	}
 
-	template <typename Range, typename BoundsRange>
+	template <typename Itr, typename BoundsItr>
+	constexpr auto advance_vector(Itr begin, Itr end, BoundsItr lower_begin, BoundsItr upper_begin) -> std::remove_reference_t<decltype
+	(
+		*begin, ++begin,
+		*lower_begin, ++lower_begin,
+		begin
+	)>
+	{
+		return advance_vector(begin, end, lower_begin, upper_begin, detail::increment_step{});
+	}
+
+	template <typename T, typename = std::nullptr_t>
+	struct is_range
+	: public std::false_type {};
+
+	template <typename T>
+	struct is_range<T, decltype(
+		std::begin(std::declval<T>()),
+		std::end(std::declval<T>()),
+		nullptr)>
+	: public std::true_type {};
+
+	template <typename T>
+	constexpr auto is_range_v = is_range<T>::value;
+
+	template <typename Range, std::enable_if_t<is_range_v<Range>>* = nullptr>
+	constexpr auto distance(Range&& range)
+	{
+		return std::distance(std::begin(range), std::end(range));
+	}
+
+	template <typename Range, typename BoundsRange,
+		std::enable_if_t<is_range_v<Range> && is_range_v<BoundsRange>>* = nullptr>
 	constexpr auto advance_vector(Range& range, BoundsRange lower, BoundsRange upper)
 	{
-		using std::begin;
-		using std::end;
-		using std::distance;
-		auto range_begin = begin(range);
-		auto range_end = end(range);
-		auto upper_begin = begin(upper);
-		auto upper_end = end(upper);
-		auto lower_begin = begin(lower);
-		auto lower_end = end(lower);
-		assert(distance(range_begin, range_end) == distance(upper_begin, upper_end));
-		assert(distance(range_begin, range_end) == distance(lower_begin, lower_end));
-		return advance_vector(range_begin, range_end, lower_begin, upper_begin);
+		assert(distance(range) == distance(upper));
+		assert(distance(range) == distance(lower));
+		return advance_vector(std::begin(range), std::end(range), std::begin(lower), std::begin(upper));
+	}
+
+	template <typename Range, typename BoundsRange, typename StepRange,
+		std::enable_if_t<is_range_v<Range> && is_range_v<BoundsRange> && is_range_v<StepRange>>* = nullptr>
+	constexpr auto advance_vector(Range& range, BoundsRange lower, BoundsRange upper, StepRange step)
+	{
+		assert(distance(range) == distance(upper));
+		assert(distance(range) == distance(lower));
+		assert(distance(range) == distance(step));
+		return advance_vector(std::begin(range), std::end(range), std::begin(lower), std::begin(upper), std::begin(step));
 	}
 
 	// TODO: next number can be implemented using advance_vector, wrapping the constants base in iterators,

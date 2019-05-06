@@ -19,7 +19,6 @@ void MultidimentionalIteration()
 			for(int i = lower[0]; i < upper[0]; ++i)
 				test_data.push_back({i,j,k});
 
-
 	std::vector<Vector> data;
 	auto i = lower;
 	auto magnitude = i.begin();
@@ -27,6 +26,26 @@ void MultidimentionalIteration()
 	{
 		data.push_back(i);
 		magnitude = advance_vector(i, lower, upper);
+	}
+
+	assert(data == test_data);
+
+
+	test_data.clear();
+	data.clear();
+	Vector step = {1,2,3};
+
+	for(int k = lower[2]; k < upper[2]; k += step[2])
+		for(int j = lower[1]; j < upper[1]; j += step[1])
+			for(int i = lower[0]; i < upper[0]; i += step[0])
+				test_data.push_back({i,j,k});
+
+	i = lower;
+	magnitude = i.begin();
+	while(magnitude != i.end())
+	{
+		data.push_back(i);
+		magnitude = advance_vector(i, lower, upper, step);
 	}
 
 	assert(data == test_data);
@@ -120,6 +139,7 @@ constexpr bool Constexprness()
 	make_range(v.bounds);
 	reverse_range(v.bounds);
 	advance_vector(v.bounds, v.bounds, v.bounds);
+	advance_vector(v.bounds, v.bounds, v.bounds, v.bounds);
 	next_number(v.bounds);
 	prev_number(v.bounds);
 	variance(v.bounds);

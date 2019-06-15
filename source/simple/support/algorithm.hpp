@@ -212,9 +212,44 @@ namespace simple::support
 	}
 
 	template <typename Number>
-	Number wrap(Number x, Number upperLimit)
+	constexpr Number wrap(Number x, Number upperLimit)
+	noexcept(noexcept(Number((x + upperLimit) % upperLimit)))
 	{
 		return (x + upperLimit) % upperLimit;
+	}
+
+	// rangey wrappers
+
+	template <typename Range>
+	constexpr auto min_element(Range& range)
+	//TODO: noexcept account for return value construction
+	noexcept(noexcept(std::min_element(std::begin(range), std::end(range))))
+	{
+		return std::min_element(std::begin(range), std::end(range));
+	}
+
+	template <typename Range>
+	constexpr auto min_element(Range&& range)
+	//TODO: noexcept account for return value construction
+	noexcept(noexcept(std::min_element(std::begin(range), std::end(range))))
+	{
+		return *std::min_element(std::begin(range), std::end(range));
+	}
+
+	template <typename Range>
+	constexpr auto max_element(Range& range)
+	//TODO: noexcept account for return value construction
+	noexcept(noexcept(std::max_element(std::begin(range), std::end(range))))
+	{
+		return std::max_element(std::begin(range), std::end(range));
+	}
+
+	template <typename Range>
+	constexpr auto max_element(Range&& range)
+	//TODO: noexcept account for return value construction
+	noexcept(noexcept(std::max_element(std::begin(range), std::end(range))))
+	{
+		return *std::max_element(std::begin(range), std::end(range));
 	}
 
 } // namespace simple::support

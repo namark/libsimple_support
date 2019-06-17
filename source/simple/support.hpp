@@ -3,6 +3,7 @@
 #include "support/array.hpp"
 #include "support/array_operators.hpp"
 #include "support/array_utils.hpp"
+#include "support/binary.hpp"
 #include "support/carcdr.hpp"
 #include "support/enum_flags_operators.hpp"
 #include "support/enum.hpp"
@@ -12,3 +13,4 @@
 #include "support/misc.hpp"
 #include "support/random.hpp"
 #include "support/range.hpp"
+#include "support/rational.hpp"

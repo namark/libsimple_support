@@ -130,6 +130,7 @@ namespace simple::support
 
 	template <typename T> range(T lower, T upper) -> range<T>;
 
+	// TODO: generalize some of these to anything that has lower()/upper() bound iterface
 	template <typename Type, typename ValueType = Type, std::common_type_t<ValueType, Type>* = nullptr>
 	constexpr bool contains(const range<Type>& range, const ValueType& value)
 	{ return range.contains(value); }

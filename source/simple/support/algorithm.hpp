@@ -29,6 +29,7 @@ namespace simple::support
 		begin
 	)>
 	{
+		// TODO: do while loop can be more optimal for most use cases, but burdens the user
 		while(begin != end)
 		{
 			if constexpr (std::is_same_v<StepItr, detail::increment_step>)

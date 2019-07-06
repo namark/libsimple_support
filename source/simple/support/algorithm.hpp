@@ -253,6 +253,48 @@ namespace simple::support
 		return *std::max_element(std::begin(range), std::end(range));
 	}
 
+	template <typename Range, typename UnaryPredicate>
+	constexpr auto all_of(const Range& range, UnaryPredicate p)
+	noexcept(noexcept(std::all_of(std::begin(range), std::end(range), p)))
+	{
+		return std::all_of(std::begin(range), std::end(range), p);
+	}
+	template <typename ExecutionPolicy, typename Range, typename UnaryPredicate>
+	constexpr auto all_of(ExecutionPolicy&& policy, const Range& range, UnaryPredicate p)
+	noexcept(noexcept(std::all_of(std::begin(range), std::end(range), p)))
+	{
+		return std::all_of(std::forward<ExecutionPolicy>(policy),
+			std::begin(range), std::end(range), p);
+	}
+
+	template <typename Range, typename UnaryPredicate>
+	constexpr auto any_of(const Range& range, UnaryPredicate p)
+	noexcept(noexcept(std::any_of(std::begin(range), std::end(range), p)))
+	{
+		return std::any_of(std::begin(range), std::end(range), p);
+	}
+	template <typename ExecutionPolicy, typename Range, typename UnaryPredicate>
+	constexpr auto any_of(ExecutionPolicy&& policy, const Range& range, UnaryPredicate p)
+	noexcept(noexcept(std::any_of(std::begin(range), std::end(range), p)))
+	{
+		return std::any_of(std::forward<ExecutionPolicy>(policy),
+			std::begin(range), std::end(range), p);
+	}
+
+	template <typename Range, typename UnaryPredicate>
+	constexpr auto none_of(const Range& range, UnaryPredicate p)
+	noexcept(noexcept(std::none_of(std::begin(range), std::end(range), p)))
+	{
+		return std::none_of(std::begin(range), std::end(range), p);
+	}
+	template <typename ExecutionPolicy, typename Range, typename UnaryPredicate>
+	constexpr auto none_of(ExecutionPolicy&& policy, const Range& range, UnaryPredicate p)
+	noexcept(noexcept(std::none_of(std::begin(range), std::end(range), p)))
+	{
+		return std::none_of(std::forward<ExecutionPolicy>(policy),
+			std::begin(range), std::end(range), p);
+	}
+
 } // namespace simple::support
 
 #endif /* end of include guard */

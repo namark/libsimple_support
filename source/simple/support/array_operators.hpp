@@ -285,7 +285,7 @@ namespace AOps_Details
 template <typename Array, \
 	typename OperatorDef = simple::support::define_array_operators<Array>, \
 	std::enable_if_t<OperatorDef::enabled_operators && simple::support::array_operator::op_type>* = nullptr> \
-constexpr Array operator op_symbol (const Array& one) \
+[[nodiscard]] constexpr Array operator op_symbol (const Array& one) \
 { \
 	using namespace simple::support; \
 	using namespace simple::support::AOps_Details; \
@@ -300,7 +300,7 @@ constexpr Array operator op_symbol (const Array& one) \
 template <typename Array, \
 	typename OperatorDef = simple::support::define_array_operators<Array>, \
 	std::enable_if_t<OperatorDef::enabled_operators && simple::support::array_operator::op_type>* = nullptr> \
-constexpr Array operator op_symbol (const Array& one, const Array& other) \
+[[nodiscard]] constexpr Array operator op_symbol (const Array& one, const Array& other) \
 { \
 	using namespace simple::support; \
 	using namespace simple::support::AOps_Details; \
@@ -321,7 +321,7 @@ template <typename Array, typename Other, \
 	typename ElementResult = std::invoke_result_t<Operator, Element, Other>, \
 	std::enable_if_t<std::is_convertible_v<ElementResult, Element>>* =  nullptr \
 > \
-constexpr Array operator op_symbol \
+[[nodiscard]] constexpr Array operator op_symbol \
 ( \
 	const Array & one, \
 	const Other & other \
@@ -346,7 +346,7 @@ template <typename Array, typename Other, \
 	typename ElementResult = std::invoke_result_t<Operator,Other, Element>, \
 	std::enable_if_t<std::is_convertible_v<ElementResult, Element>>* =  nullptr \
 > \
-constexpr Array operator op_symbol \
+[[nodiscard]] constexpr Array operator op_symbol \
 ( \
 	const Other & one, \
 	const Array & other \

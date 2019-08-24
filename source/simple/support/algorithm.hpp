@@ -219,6 +219,21 @@ namespace simple::support
 		return (x + upperLimit) % upperLimit;
 	}
 
+	template <typename... Numbers>
+	constexpr auto avarage(Numbers... n)
+	//TODO: noexcept account for return value construction
+	noexcept(noexcept((n + ...) / int(sizeof...(n))))
+	{
+		return (n + ...) / int(sizeof...(n));
+	}
+
+	template <typename Number>
+	constexpr Number midpoint(Number a, Number b)
+	noexcept(noexcept(Number(a + (b - a) / 2)))
+	{
+		return a + (b - a)/2;
+	}
+
 	// rangey wrappers
 
 	template <typename Range>

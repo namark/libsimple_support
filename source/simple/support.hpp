@@ -10,6 +10,7 @@
 #include "support/function_utils.hpp"
 #include "support/int_literals.hpp"
 #include "support/logic.hpp"
+#include "support/math.hpp"
 #include "support/misc.hpp"
 #include "support/random.hpp"
 #include "support/range.hpp"

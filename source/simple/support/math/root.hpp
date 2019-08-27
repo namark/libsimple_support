@@ -98,7 +98,8 @@ namespace simple::support
 	{                                                           \
 		struct builtin##_expression                             \
 		{                                                       \
-			constexpr static auto eval = [](){ builtin(2); };   \
+			constexpr static auto eval =                        \
+				[](){ void(builtin(2)); };                      \
 		};                                                      \
 	} /* namespace detail */                                    \
                                                                 \

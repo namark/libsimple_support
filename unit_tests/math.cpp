@@ -54,6 +54,17 @@ void BabelonianSquareRoot()
 	}
 	assert( (good / (good+bad)) > 0.99 );
 	assert( awful == 0 );
+
+	// edge cases
+	assert( std::isnan(babelonian_root2_f(-1.f)) );
+	assert( std::isnan(babelonian_root2_f(0.f/0.f)) );
+
+	float x = 0;
+	assert( babelonian_root2_f(x) == x );
+	x = std::numeric_limits<float>::min()/2;
+	assert( babelonian_root2_f(x) == x );
+	x = std::numeric_limits<float>::max()*2;
+	assert( babelonian_root2_f(x) == x );
 }
 
 constexpr bool Constexpr()

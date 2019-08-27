@@ -2,8 +2,8 @@
 #define SIMPLE_SUPPORT_MATH_ROOT_HPP
 
 #include <cassert>
-#include <cmath>
-#include <tuple>
+#include <limits>
+#include <type_traits>
 #include "../range.hpp"
 #include "../algorithm.hpp"
 #include "float.hpp"
@@ -58,7 +58,8 @@ namespace simple::support
 
 		if(n < -Number{0}) // no idea why -0 but that's what it says
 			return Number{0}/Number{0}; // has quite nan? has signaling nan? i don't know, so there you go
-		if(!std::isnormal(n)) return n;
+		using limits = std::numeric_limits<Number>;
+		if(n!=n || abs(n) < limits::min() || abs(n) == limits::infinity()) return n; // hand rolled std::isnormal
 
 		return babelonian_root2(n, almost_equal<Number>);
 	}
@@ -86,6 +87,7 @@ namespace simple::support
 #define simple_support_math__builtin_sqrtl __builtin_sqrtl
 #define simple_support_math__builtin_sqrt __builtin_sqrt
 #else
+#include<cmath>
 #define simple_support_math__builtin_sqrtf std::sqrt
 #define simple_support_math__builtin_sqrt std::sqrt
 #define simple_support_math__builtin_sqrtl std::sqrt

@@ -33,7 +33,7 @@ namespace simple::support
 	{
 		assert(n >= 0 && g > 0);
 		do
-			g = avarage(g, n/g);
+			g = average(g, n/g);
 		while( !eq(n, g*g) );
 		return g;
 	}

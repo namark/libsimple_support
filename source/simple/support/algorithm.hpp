@@ -234,7 +234,7 @@ namespace simple::support
 
 	template <typename... Numbers>
 	[[nodiscard]] constexpr
-	auto avarage(Numbers... n)
+	auto average(Numbers... n)
 	//TODO: noexcept account for return value construction
 	noexcept(noexcept((n + ...) / int(sizeof...(n))))
 	{

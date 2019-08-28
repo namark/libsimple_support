@@ -145,7 +145,7 @@ constexpr bool Constexprness()
 	variance(v.bounds);
 	void(wrap(1,1));
 	void(midpoint(1,1));
-	void(avarage(1,1));
+	void(average(1,1));
 	return true;
 }
 

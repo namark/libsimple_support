@@ -34,7 +34,7 @@ namespace simple::support
 		constexpr static range limit()
 		{
 			static_assert(std::numeric_limits<Type>::is_specialized);
-			return { std::numeric_limits<Type>::min(), std::numeric_limits<Type>::max() };
+			return { std::numeric_limits<Type>::lowest(), std::numeric_limits<Type>::max() };
 		}
 
 		constexpr Type& lower() noexcept { return bounds[0]; }

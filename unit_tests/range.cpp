@@ -136,15 +136,36 @@ void SubRange()
 template <typename Larger, typename Smaller>
 void limits_check_containment(std::mt19937_64 & generator)
 {
-	std::uniform_int_distribution<Smaller> uid(std::numeric_limits<Smaller>::min());
+	std::uniform_int_distribution<Smaller> uid(std::numeric_limits<Smaller>::lowest());
 
 	constexpr auto bounds = range<Larger>::limit();
-	assert(	bounds.lower() == std::numeric_limits<Larger>::min() &&
+	assert(	bounds.lower() == std::numeric_limits<Larger>::lowest() &&
 			bounds.upper() == std::numeric_limits<Larger>::max() );
 	bool out_of_bounds = false;
 	for(int i = 0; i < 100'000; ++i)
 		if( out_of_bounds |= (!bounds.intersects(uid(generator))), out_of_bounds )
 			break;
+	assert(!out_of_bounds);
+}
+
+template <typename Larger, typename Smaller>
+void limits_check_containment_f(std::mt19937_64 & generator)
+{
+	std::uniform_real_distribution<Smaller> uid(
+			std::numeric_limits<Smaller>::min(),
+			std::numeric_limits<Smaller>::max());
+	std::uniform_real_distribution<Smaller> sign(-1,1);
+
+	constexpr auto bounds = range<Larger>::limit();
+	assert(	bounds.lower() == std::numeric_limits<Larger>::lowest() &&
+			bounds.upper() == std::numeric_limits<Larger>::max() );
+	bool out_of_bounds = false;
+	for(int i = 0; i < 100'000; ++i)
+	{
+		auto value = std::copysign(uid(generator), sign(generator));
+		if( out_of_bounds |= !bounds.intersects(value), out_of_bounds )
+			break;
+	}
 	assert(!out_of_bounds);
 }
 
@@ -162,9 +183,14 @@ void Limit()
 	limits_check_containment<signed long, signed long>(generator);
 	limits_check_containment<signed long long, signed long>(generator);
 	limits_check_containment<signed long long, signed long long>(generator);
+	limits_check_containment_f<float, float>(generator);
+	limits_check_containment_f<double, float>(generator);
+	limits_check_containment_f<double, double>(generator);
+	limits_check_containment_f<long double, double>(generator);
+	limits_check_containment_f<long double, long double>(generator);
 
-	if(std::numeric_limits<signed long long>::min() < std::numeric_limits<signed char>::min())
-		assert( !range<signed char>::limit().contains(std::numeric_limits<signed long long>::min()) );
+	if(std::numeric_limits<signed long long>::lowest() < std::numeric_limits<signed char>::lowest())
+		assert( !range<signed char>::limit().contains(std::numeric_limits<signed long long>::lowest()) );
 	if(std::numeric_limits<signed long long>::max() > std::numeric_limits<signed char>::max())
 		assert( !range<signed char>::limit().contains(std::numeric_limits<signed long long>::max()) );
 }

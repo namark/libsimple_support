@@ -143,7 +143,9 @@ constexpr bool Constexprness()
 	next_number(v.bounds);
 	prev_number(v.bounds);
 	variance(v.bounds);
-	wrap(1,1);
+	void(wrap(1,1));
+	void(midpoint(1,1));
+	void(avarage(1,1));
 	return true;
 }
 

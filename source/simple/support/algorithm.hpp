@@ -1,7 +1,9 @@
 #ifndef SIMPLE_SUPPORT_ALGORITHM_HPP
 #define SIMPLE_SUPPORT_ALGORITHM_HPP
-#include <iterator>
 #include <cassert>
+#include <cmath>
+#include <iterator>
+#include <algorithm>
 
 #include "range.hpp"
 
@@ -212,15 +214,27 @@ namespace simple::support
 		return make_range( begin(range), variance(begin(range), end(range)) );
 	}
 
-	template <typename Number>
-	constexpr Number wrap(Number x, Number upperLimit)
+	template <typename Number,
+		std::enable_if_t<!std::is_floating_point_v<Number>>* = nullptr>
+	[[nodiscard]] constexpr
+	Number wrap(Number x, Number upperLimit)
 	noexcept(noexcept(Number((x + upperLimit) % upperLimit)))
 	{
 		return (x + upperLimit) % upperLimit;
 	}
 
+	template <typename Number,
+		std::enable_if_t<std::is_floating_point_v<Number>>* = nullptr>
+	[[nodiscard]] constexpr
+	Number wrap(Number x, Number upperLimit)
+	noexcept(noexcept(Number(std::fmod(x + upperLimit, upperLimit))))
+	{
+		return std::fmod(x + upperLimit, upperLimit);
+	}
+
 	template <typename... Numbers>
-	constexpr auto avarage(Numbers... n)
+	[[nodiscard]] constexpr
+	auto avarage(Numbers... n)
 	//TODO: noexcept account for return value construction
 	noexcept(noexcept((n + ...) / int(sizeof...(n))))
 	{
@@ -228,7 +242,8 @@ namespace simple::support
 	}
 
 	template <typename Number>
-	constexpr Number midpoint(Number a, Number b)
+	[[nodiscard]] constexpr
+	Number midpoint(Number a, Number b)
 	noexcept(noexcept(Number(a + (b - a) / 2)))
 	{
 		return a + (b - a)/2;

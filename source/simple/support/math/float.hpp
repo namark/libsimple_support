@@ -2,6 +2,7 @@
 #define SIMPLE_SUPPORT_MATH_FLOAT_HPP
 
 #include <cstddef>
+#include <cstdint>
 #include <type_traits>
 #include <limits>
 
@@ -18,7 +19,7 @@ namespace simple::support
 	// taken (almost) straight from cppreference.com
 	// no idea how it works
 	template<class T>
-	constexpr
+	[[nodiscard]] constexpr
 	typename std::enable_if_t<std::is_floating_point_v<T>, bool>
 	equal_ulp(T x, T y, std::size_t ulp)
 	{
@@ -30,11 +31,20 @@ namespace simple::support
 	}
 
 	template<class T>
-	constexpr
+	[[nodiscard]] constexpr
 	typename std::enable_if_t<std::is_floating_point_v<T>, bool>
 	almost_equal(T x, T y)
 	{
 		return equal_ulp(x,y,1);
+	}
+
+	template <typename Float, typename IntMax = std::intmax_t>
+	[[nodiscard]] constexpr
+	Float trunc_up_to_intmax(Float f)
+	{
+		return abs(f) <= std::numeric_limits<IntMax>::max()
+			? static_cast<Float>(static_cast<IntMax>(f))
+			: f;
 	}
 
 } // namespace simple::support

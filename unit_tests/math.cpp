@@ -30,6 +30,43 @@ void FloatEquality()
 
 }
 
+void FloatTruncation()
+{
+	auto seed = std::random_device{}();
+	std::cout << "Float trunc test seed: " << std::hex << std::showbase << seed << std::endl;
+	random::engine::tiny<unsigned long long> random{seed};
+	std::uniform_real_distribution<long double> sign{-1,1};
+
+	int trunced = 0;
+	std::uniform_real_distribution<long double> number{
+		std::numeric_limits<long double>::min(),
+		(long double)std::numeric_limits<std::intmax_t>::max(),
+	};
+	for(int i = 0; i < 10'000'000; ++i)
+	{
+		long double a = std::copysign(number(random), sign(random));
+		assert( trunc_up_to_intmax(a) == std::trunc(a) );
+		if(trunc_up_to_intmax(a) != a)
+			++trunced;
+	};
+	assert(trunced > 0);
+
+	trunced = 0;
+	std::uniform_real_distribution<long double> bigger_number{
+		(long double)std::numeric_limits<std::intmax_t>::max(),
+		std::numeric_limits<long double>::max(),
+	};
+	for(int i = 0; i < 10'000'000; ++i)
+	{
+		long double a = std::copysign(bigger_number(random), sign(random));
+		assert( trunc_up_to_intmax(a) == std::trunc(a) );
+		if(trunc_up_to_intmax(a) != a)
+			++trunced;
+	};
+	assert(0 == trunced);
+
+}
+
 void BabelonianSquareRoot()
 {
 	auto seed = std::random_device{}();
@@ -76,6 +113,7 @@ constexpr bool Constexpr()
 int main()
 {
 	FloatEquality();
+	FloatTruncation();
 	BabelonianSquareRoot();
 	static_assert(Constexpr(),"");
 	return 0;

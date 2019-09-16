@@ -283,6 +283,38 @@ namespace simple::support
 		return *std::max_element(std::begin(range), std::end(range));
 	}
 
+	template <typename Range, typename Compare>
+	constexpr auto min_element(Range& range, Compare comp)
+	//TODO: noexcept account for return value construction
+	noexcept(noexcept(std::min_element(std::begin(range), std::end(range), comp)))
+	{
+		return std::min_element(std::begin(range), std::end(range), comp);
+	}
+
+	template <typename Range, typename Compare>
+	constexpr auto min_element(Range&& range, Compare comp)
+	//TODO: noexcept account for return value construction
+	noexcept(noexcept(std::min_element(std::begin(range), std::end(range), comp)))
+	{
+		return *std::min_element(std::begin(range), std::end(range), comp);
+	}
+
+	template <typename Range, typename Compare>
+	constexpr auto max_element(Range& range, Compare comp)
+	//TODO: noexcept account for return value construction
+	noexcept(noexcept(std::max_element(std::begin(range), std::end(range), comp)))
+	{
+		return std::max_element(std::begin(range), std::end(range), comp);
+	}
+
+	template <typename Range, typename Compare>
+	constexpr auto max_element(Range&& range, Compare comp)
+	//TODO: noexcept account for return value construction
+	noexcept(noexcept(std::max_element(std::begin(range), std::end(range), comp)))
+	{
+		return *std::max_element(std::begin(range), std::end(range), comp);
+	}
+
 	template <typename Range, typename UnaryPredicate>
 	constexpr auto all_of(const Range& range, UnaryPredicate p)
 	noexcept(noexcept(std::all_of(std::begin(range), std::end(range), p)))

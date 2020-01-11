@@ -20,46 +20,65 @@ namespace simple::support
 			void operator++() const noexcept;
 		};
 
+		class null_lower_iterator
+		{
+			public:
+			void operator*() const noexcept;
+			void operator++() const noexcept;
+		};
+
 	} // namespace detail
 
-	template <typename Itr, typename BoundsItr, typename StepItr>
-	constexpr auto advance_vector(Itr begin, Itr end, BoundsItr lower_begin, BoundsItr upper_begin, StepItr step_begin) -> std::remove_reference_t<decltype
+	template <typename Itr, typename LowerItr, typename UpperItr, typename StepItr = detail::increment_step>
+	constexpr auto advance_vector(Itr begin, Itr end,
+			LowerItr lower_begin, UpperItr upper_begin,
+			StepItr step_begin = detail::increment_step{})
+	-> std::remove_reference_t<decltype
 	(
 		*begin, ++begin,
 		*lower_begin, ++lower_begin,
+		*upper_begin, ++upper_begin,
 		*step_begin, ++step_begin,
 		begin
 	)>
 	{
+		using value_type = std::remove_reference_t<decltype(*begin)>;
+		constexpr bool increment_step = std::is_same_v<StepItr, detail::increment_step>;
+		constexpr bool null_lower_iterator = std::is_same_v<LowerItr, detail::null_lower_iterator>;
 		// TODO: do while loop can be more optimal for most use cases, but burdens the user
 		while(begin != end)
 		{
-			if constexpr (std::is_same_v<StepItr, detail::increment_step>)
+			if constexpr (increment_step)
 				++(*begin);
 			else
 				*begin += *step_begin;
 
 			if(*begin < *upper_begin)
 				break;
-			*begin = *lower_begin;
+			if constexpr (null_lower_iterator)
+				*begin = value_type{};
+			else
+				*begin = *lower_begin;
+
 			++begin;
-			++lower_begin;
 			++upper_begin;
-			if constexpr (!std::is_same_v<StepItr, detail::increment_step>)
+			if constexpr (!null_lower_iterator)
+				++lower_begin;
+			if constexpr (!increment_step)
 				++step_begin;
 		}
 		return begin;
 	}
 
-	template <typename Itr, typename BoundsItr>
-	constexpr auto advance_vector(Itr begin, Itr end, BoundsItr lower_begin, BoundsItr upper_begin) -> std::remove_reference_t<decltype
+	template <typename Itr, typename UpperItr>
+	constexpr auto advance_vector(Itr begin, Itr end, UpperItr upper_begin) -> std::remove_reference_t<decltype
 	(
 		*begin, ++begin,
-		*lower_begin, ++lower_begin,
+		*upper_begin, ++upper_begin,
 		begin
 	)>
 	{
-		return advance_vector(begin, end, lower_begin, upper_begin, detail::increment_step{});
+		return advance_vector(begin, end, detail::null_lower_iterator{}, upper_begin, detail::increment_step{});
 	}
 
 	template <typename T, typename = std::nullptr_t>
@@ -82,9 +101,14 @@ namespace simple::support
 		return std::distance(std::begin(range), std::end(range));
 	}
 
-	template <typename Range, typename BoundsRange,
-		std::enable_if_t<is_range_v<Range> && is_range_v<BoundsRange>>* = nullptr>
-	constexpr auto advance_vector(Range& range, BoundsRange lower, BoundsRange upper)
+	template <typename Range, typename LowerRange, typename UpperRange,
+		std::enable_if_t<
+			is_range_v<Range> &&
+			is_range_v<LowerRange> &&
+			is_range_v<UpperRange>
+		>* = nullptr
+	>
+	constexpr auto advance_vector(Range& range, LowerRange lower, UpperRange upper)
 	{
 		assert(distance(range) == distance(upper));
 		assert(distance(range) == distance(lower));
@@ -100,6 +124,19 @@ namespace simple::support
 		assert(distance(range) == distance(step));
 		return advance_vector(std::begin(range), std::end(range), std::begin(lower), std::begin(upper), std::begin(step));
 	}
+
+	template <typename Range, typename UpperRange,
+		std::enable_if_t<
+			is_range_v<Range> &&
+			is_range_v<UpperRange>
+		>* = nullptr
+	>
+	constexpr auto advance_vector(Range& range, UpperRange upper)
+	{
+		assert(distance(range) == distance(upper));
+		return advance_vector(std::begin(range), std::end(range), std::begin(upper));
+	}
+
 
 	// TODO: next number can be implemented using advance_vector, wrapping the constants base in iterators,
 	// but i'm not sure about it, would it optimize well??

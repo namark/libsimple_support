@@ -286,6 +286,22 @@ namespace simple::support
 		return a + (b - a)/2;
 	}
 
+	// std::swap is not constexpr >.<
+	template <typename T, std::enable_if_t<
+		std::is_move_constructible_v<T> &&
+		std::is_move_assignable_v<T>
+	>* = nullptr>
+	constexpr void swap(T& one, T& other)
+	noexcept(
+		std::is_nothrow_move_constructible_v<T> &&
+		std::is_nothrow_move_assignable_v<T>
+	)
+	{
+		T temp{std::move(other)};
+		other = std::move(one);
+		one = std::move(temp);
+	}
+
 	// rangey wrappers
 
 	template <typename Range>

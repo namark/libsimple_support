@@ -1,10 +1,12 @@
 /*
 	libsimple_support - a mess of C++ utility code
 	https://notabug.org/namark/libsimple_support
+	https://git.sr.ht/~namark/libsimple_support
+	https://git.qoto.org/namark/libsimple_support
 	https://gitlab.com/namark/libsimple_support
 	https://github.com/namark/libsimple_support
 
-	Copyright (C) 2017-2019 respective authors/contributors
+	Copyright (C) 2017-2020 respective authors/contributors
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by

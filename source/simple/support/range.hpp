@@ -64,7 +64,8 @@ namespace simple::support
 			return result;
 		}
 
-		constexpr bool valid() const { return lower() <= upper(); }
+		constexpr auto validity() const { return lower() <= upper(); }
+		constexpr bool valid() const { return bool(validity()); }
 		constexpr range& fix() &
 		{
 			using std::min;

@@ -1,8 +1,8 @@
 #ifndef SIMPLE_SUPPORT_RATIONAL_HPP
 #define SIMPLE_SUPPORT_RATIONAL_HPP
 
-#include "simple/support/array.hpp"
-#include "simple/support/array_operators.hpp"
+#include "array.hpp"
+#include "array_operators.hpp"
 
 namespace simple::support
 {

@@ -1,6 +1,6 @@
 #ifndef SIMPLE_SUPPORT_RANDOM_DISTRIBUTION_NAIVE_HPP
 #define SIMPLE_SUPPORT_RANDOM_DISTRIBUTION_NAIVE_HPP
-#include "simple/support/range.hpp"
+#include "../../range.hpp"
 
 namespace simple::support::random::distribution
 {

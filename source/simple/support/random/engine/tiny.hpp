@@ -5,7 +5,7 @@
 #include <type_traits>
 #include <iterator>
 #include <array>
-#include "simple/support/random/engine/basic_tiny.hpp"
+#include "basic_tiny.hpp"
 
 namespace simple::support::random::engine
 {

@@ -1,9 +1,9 @@
 #ifndef SIMPLE_SUPPORT_RANDOM_DISTRIBUTION_DIAGONAL_HPP
 #define SIMPLE_SUPPORT_RANDOM_DISTRIBUTION_DIAGONAL_HPP
 #include <algorithm>
-#include "simple/support/arithmetic.hpp"
-#include "simple/support/algorithm.hpp"
-#include "simple/support/array.hpp"
+#include "../../arithmetic.hpp"
+#include "../../algorithm.hpp"
+#include "../../array.hpp"
 
 namespace simple::support::random::distribution
 {

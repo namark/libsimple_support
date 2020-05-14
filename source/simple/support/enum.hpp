@@ -43,8 +43,8 @@ namespace simple::support
 
 		public:
 		using Guts [[deprecated]] = GutsType;
-		using Type [[deprecated]] = typename Guts::Type;
 		using guts = GutsType;
+		using Type [[deprecated]] = typename guts::Type;
 		using type = typename guts::type;
 
 		template<typename G=guts, std::enable_if_t<enum_details::has_default<G>::value>* = nullptr>
@@ -105,7 +105,7 @@ namespace simple::support
 	{
 		using Type [[deprecated]] = EnumType;
 		using type = EnumType;
-		using UType [[deprecated]] = std::underlying_type_t<Type>;
+		using UType [[deprecated]] = std::underlying_type_t<type>;
 		using underlying_type = std::underlying_type_t<type>;
 		using map_type = const std::array<
 			std::array<const MappedType, MappedValueCount>,
@@ -158,8 +158,8 @@ namespace simple::support
 
 	template <typename EnumWrapper,
 		 std::enable_if_t<
-			 is_template_instance<EnumWrapper,enum_wrapper>::value>
-		 * = nullptr
+			 is_template_instance_v<enum_wrapper, EnumWrapper>
+		 > * = nullptr
 	>
 	constexpr auto to_integer(const EnumWrapper& value)
 	{ return to_integer<typename EnumWrapper::type>(value);};

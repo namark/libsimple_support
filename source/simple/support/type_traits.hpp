@@ -6,14 +6,17 @@
 namespace simple::support
 {
 
-	template <typename, template <typename...> typename>
+	template <template <typename...> typename, typename>
 	struct is_template_instance : public std::false_type {};
 
-	template <typename...Ts, template <typename...> typename U>
-	struct is_template_instance<U<Ts...>, U> : public std::true_type {};
+	template <template <typename...> typename U, typename...Ts>
+	struct is_template_instance<U, U<Ts...>> : public std::true_type {};
 
-	template <typename...Ts, template <typename...> typename U>
-	constexpr auto is_template_instance_v = is_template_instance<Ts...,U>::value;
+	template <template <typename...> typename U, typename...Ts>
+	constexpr auto is_template_instance_v = is_template_instance<U, Ts...>::value;
+
+	template <typename T>
+	using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<T>>;
 
 } // namespace simple::support
 

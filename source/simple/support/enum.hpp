@@ -86,12 +86,6 @@ namespace simple::support
 			return guts::to(_type);
 		}
 
-#ifdef __clang__ // cause GCC can't handle the SFINAE below
-		template<typename Integral,
-			std::enable_if_t<std::is_integral<Integral>::value>* = nullptr>
-		operator Integral() const = delete;
-#endif
-
 		private:
 		type _type;
 

@@ -70,7 +70,7 @@ void FloatTruncation()
 void BabelonianSquareRoot()
 {
 	auto seed = std::random_device{}();
-	std::cout << "Babelonion square root test seed: " << std::hex << std::showbase << seed << std::endl;
+	std::cout << "Babelonian square root test seed: " << std::hex << std::showbase << seed << std::endl;
 	random::engine::tiny<unsigned long long> random{seed};
 	std::uniform_real_distribution<double> number{};
 

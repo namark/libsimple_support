@@ -18,6 +18,12 @@ namespace simple::support
 	template <typename T>
 	using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<T>>;
 
+	template <typename T>
+	struct non_deduced_helper { using type = T; };
+
+	template <typename T>
+	using non_deduced = typename non_deduced_helper<T>::type;
+
 } // namespace simple::support
 
 #endif /* end of include guard */

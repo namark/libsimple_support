@@ -8,6 +8,7 @@
 #include <cmath>
 
 #include "enum_flags_operators.hpp"
+#include "type_traits.hpp"
 
 namespace simple::support
 {
@@ -46,25 +47,29 @@ namespace simple::support
 
 	template<> struct define_enum_flags_operators<array_operator> : public std::true_type {};
 
-	template <typename T1, typename T2 = T1>
+	template <typename T1, typename T2 = T1,
+		typename Result = decltype(std::declval<T1&>() += std::declval<const T2&>())>
 	struct add_in_place
 	{
 		constexpr T1& operator()(T1& one, const T2& other) const { return one += other; }
 	};
 
-	template <typename T1, typename T2 = T1>
+	template <typename T1, typename T2 = T1,
+		typename Result = decltype(std::declval<T1&>() -= std::declval<const T2&>()) >
 	struct sub_in_place
 	{
 		constexpr T1& operator()(T1& one, const T2& other) const { return one -= other; }
 	};
 
-	template <typename T1, typename T2 = T1>
+	template <typename T1, typename T2 = T1,
+		typename Result = decltype(std::declval<T1&>() *= std::declval<const T2&>())>
 	struct mul_in_place
 	{
 		constexpr T1& operator()(T1& one, const T2& other) const { return one *= other; }
 	};
 
-	template <typename T1, typename T2 = T1>
+	template <typename T1, typename T2 = T1,
+		typename Result = decltype(std::declval<T1&>() /= std::declval<const T2&>())>
 	struct div_in_place
 	{
 		constexpr T1& operator()(T1& one, const T2& other) const { return one /= other; }
@@ -73,118 +78,163 @@ namespace simple::support
 	template <typename T1, typename T2 = T1>
 	struct mod_in_place
 	{
-		constexpr T1& operator()(T1& one, const T2& other) const
+		template <typename TT1 = T1, typename TT2 = T2,
+			std::enable_if_t<
+				std::is_floating_point_v<TT1> && std::is_floating_point_v<TT2>
+			> * = nullptr,
+			typename Result = decltype(std::declval<TT1&>() =
+				std::fmod(std::declval<TT1&>(), std::declval<const TT2&>())
+			)
+		>
+		constexpr TT1& operator()(TT1& one, const TT2& other) const
 		{
-			if constexpr (std::is_floating_point_v<T1> && std::is_floating_point_v<T2>)
-				return one = std::fmod(one, other);
-			else
-				return one %= other;
+			return one = std::fmod(one, other);
 		}
+
+		template <typename TT1 = T1, typename TT2 = T2,
+			std::enable_if_t<
+				not(std::is_floating_point_v<TT1> && std::is_floating_point_v<TT2>)
+			> * = nullptr,
+			typename Result = decltype(std::declval<TT1&>() %= std::declval<const TT2&>())
+		>
+		constexpr TT1& operator()(TT1& one, const TT2& other) const
+		{
+			return one %= other;
+		}
+
 	};
 
-	template <typename T1, typename T2 = T1>
+	template <typename T1, typename T2 = T1, typename Result =
+		decltype(std::declval<const T1&>() + std::declval<const T2&>())>
 	struct add
 	{
-		constexpr auto operator()(const T1& one, const T2& other) const { return one + other; }
+		constexpr Result operator()(const T1& one, const T2& other) const { return one + other; }
 	};
 
-	template <typename T1, typename T2 = T1>
+	template <typename T1, typename T2 = T1, typename Result =
+		decltype(std::declval<const T1&>() - std::declval<const T2&>())>
 	struct sub
 	{
-		constexpr auto operator()(const T1& one, const T2& other) const { return one - other; }
+		constexpr Result operator()(const T1& one, const T2& other) const { return one - other; }
 	};
 
-	template <typename T1, typename T2 = T1>
+	template <typename T1, typename T2 = T1, typename Result =
+		decltype(std::declval<const T1&>() * std::declval<const T2&>())>
 	struct mul
 	{
-		constexpr auto operator()(const T1& one, const T2& other) const { return one * other; }
+		constexpr Result operator()(const T1& one, const T2& other) const { return one * other; }
 	};
 
-	template <typename T1, typename T2 = T1>
+	template <typename T1, typename T2 = T1, typename Result =
+		decltype(std::declval<const T1&>() / std::declval<const T2&>())>
 	struct div
 	{
-		constexpr auto operator()(const T1& one, const T2& other) const { return one / other; }
+		constexpr Result operator()(const T1& one, const T2& other) const { return one / other; }
 	};
 
 	template <typename T1, typename T2 = T1>
 	struct mod
 	{
-		constexpr auto operator()(const T1& one, const T2& other) const
+		template <typename TT1 = T1, typename TT2 = T2,
+			std::enable_if_t<
+				std::is_floating_point_v<TT1> && std::is_floating_point_v<TT2>
+			> * = nullptr,
+			typename Result = decltype(
+				std::fmod(std::declval<const TT1&>(), std::declval<const TT2&>())
+			)
+		>
+		constexpr Result operator()(const T1& one, const T2& other) const
 		{
-			if constexpr (std::is_floating_point_v<T1> && std::is_floating_point_v<T2>)
-				return std::fmod(one, other);
-			else
-				return one % other;
+			return std::fmod(one, other);
+		}
+		template <typename TT1 = T1, typename TT2 = T2,
+			std::enable_if_t<
+				not(std::is_floating_point_v<TT1> && std::is_floating_point_v<TT2>)
+			> * = nullptr,
+			typename Result = decltype(
+				std::declval<const TT1&>() % std::declval<const TT2&>()
+			)
+		>
+		constexpr Result operator()(const T1& one, const T2& other) const
+		{
+			return one % other;
 		}
 	};
 
-	template <typename T1, typename T2 = T1>
+	template <typename T1, typename T2 = T1,
+		typename Result = decltype(std::declval<T1&>() &= std::declval<const T2&>())>
 	struct bit_and_in_place
 	{
 		constexpr T1& operator()(T1& one, const T2& other) const { return one &= other; }
 	};
 
-	template <typename T1, typename T2 = T1>
+	template <typename T1, typename T2 = T1,
+		typename Result = decltype(std::declval<T1&>() |= std::declval<const T2&>())>
 	struct bit_or_in_place
 	{
 		constexpr T1& operator()(T1& one, const T2& other) const { return one |= other; }
 	};
 
-	template <typename T1, typename T2 = T1>
+	template <typename T1, typename T2 = T1,
+		typename Result = decltype(std::declval<T1&>() ^= std::declval<const T2&>())>
 	struct bit_xor_in_place
 	{
 		constexpr T1& operator()(T1& one, const T2& other) const { return one ^= other; }
 	};
 
-	template <typename T1, typename T2 = T1>
+	template <typename T1, typename T2 = T1, typename Result =
+		decltype(std::declval<const T1&>() & std::declval<const T2&>())>
 	struct bit_and
 	{
-		constexpr auto operator()(const T1& one, const T2& other) const { return one & other; }
+		constexpr Result operator()(const T1& one, const T2& other) const { return one & other; }
 	};
 
-	template <typename T1, typename T2 = T1>
+	template <typename T1, typename T2 = T1, typename Result =
+		decltype(std::declval<const T1&>() | std::declval<const T2&>())>
 	struct bit_or
 	{
-		constexpr auto operator()(const T1& one, const T2& other) const { return one | other; }
+		constexpr Result operator()(const T1& one, const T2& other) const { return one | other; }
 	};
 
-	template <typename T1, typename T2 = T1>
+	template <typename T1, typename T2 = T1, typename Result =
+		decltype(std::declval<const T1&>() ^ std::declval<const T2&>())>
 	struct bit_xor
 	{
-		constexpr auto operator()(const T1& one, const T2& other) const { return one ^ other; }
+		constexpr Result operator()(const T1& one, const T2& other) const { return one ^ other; }
 	};
 
-	// sfinae on << and >> to not interfere with stream operators
-	// but ideally should do the same for the rest as well, to not interfere with anything
-	// so much duplicaion -_-
-	template <typename T1, typename T2 = T1, typename Result = decltype(std::declval<const T1&>() << std::declval<const T2&>())>
+	template <typename T1, typename T2 = T1, typename Result =
+		decltype(std::declval<const T1&>() << std::declval<const T2&>())>
 	struct lshift
 	{
 		constexpr Result operator()(const T1& one, const T2& other) const { return one << other; }
 	};
 
-	template <typename T1, typename T2 = T1, typename Result = decltype(std::declval<const T1&>() >> std::declval<const T2&>())>
+	template <typename T1, typename T2 = T1, typename Result =
+		decltype(std::declval<const T1&>() >> std::declval<const T2&>())>
 	struct rshift
 	{
 		constexpr Result operator()(const T1& one, const T2& other) const { return one >> other; }
 	};
 
-	template <typename T1, typename T2 = T1>
+	template <typename T1, typename T2 = T1,
+		typename Result = decltype(std::declval<T1&>() <<= std::declval<const T2&>())>
 	struct lshift_in_place
 	{
 		constexpr T1& operator()(T1& one, const T2& other) const { return one <<= other; }
 	};
 
-	template <typename T1, typename T2 = T1>
+	template <typename T1, typename T2 = T1,
+		typename Result = decltype(std::declval<T1&>() >>= std::declval<const T2&>())>
 	struct rshift_in_place
 	{
 		constexpr T1& operator()(T1& one, const T2& other) const { return one >>= other; }
 	};
 
-	template <typename Type>
+	template <typename Type, typename Result = decltype(~std::declval<const Type&>())>
 	struct bit_not
 	{
-		constexpr Type operator()(const Type& one) const { return ~one; }
+		constexpr Result operator()(const Type& one) const { return ~one; }
 	};
 
 	template <typename Type>
@@ -204,6 +254,12 @@ namespace simple::support
 		constexpr static Type& get_array(Type& object) noexcept { return object; }
 		constexpr static const Type& get_array(const Type& object) noexcept { return object; }
 	};
+
+	template <typename T>
+	struct array_operator_implicit_conversion { using type = T; };
+	template <typename T>
+	using array_operator_implicit_conversion_t =
+		typename array_operator_implicit_conversion<T>::type;
 
 namespace AOps_Details
 {
@@ -296,8 +352,13 @@ template <typename Array, \
 	return result; \
 }
 
+SIMPLE_SUPPORT_DEFINE_UNARY_OPERATOR(~, bit_not, simple::support::bit_not)
+SIMPLE_SUPPORT_DEFINE_UNARY_OPERATOR(-, negate, std::negate)
+
+#undef SIMPLE_SUPPORT_DEFINE_UNARY_OPERATOR
+
 #define SIMPLE_SUPPORT_DEFINE_BINARY_OPERATOR(op_symbol, op_type, op_fun) \
-template <typename Array, \
+template <typename Array, void* = nullptr, \
 	typename OperatorDef = simple::support::define_array_operators<Array>, \
 	std::enable_if_t<OperatorDef::enabled_operators && simple::support::array_operator::op_type>* = nullptr> \
 [[nodiscard]] constexpr Array operator op_symbol (const Array& one, const Array& other) \
@@ -311,15 +372,28 @@ template <typename Array, \
 	return result; \
 } \
 \
+template <typename T1, typename T2, \
+	typename C1 = simple::support::array_operator_implicit_conversion_t<T1>, \
+	typename C2 = simple::support::array_operator_implicit_conversion_t<T2>, \
+	typename OperatorDef = simple::support::define_array_operators<C1>, \
+	std::enable_if_t< \
+		(OperatorDef::enabled_operators && simple::support::array_operator::op_type) \
+		&& std::is_same_v<C1,C2> \
+		&& (!std::is_same_v<T1,C1> || !std::is_same_v<T2,C2>) \
+	>* = nullptr \
+> \
+[[nodiscard]] constexpr auto operator op_symbol (T1&& one, T2&& other) \
+{ \
+	return operator op_symbol<C1,nullptr>(std::forward<T1>(one), std::forward<T2>(other)); \
+} \
+\
 template <typename Array, typename Other, \
 	typename OperatorDef = simple::support::define_array_operators<Array>, \
 	typename Element = simple::support::AOps_Details::array_element_t<OperatorDef, Array>, \
-	typename Operator = op_fun<Element, Other>, \
-	std::enable_if_t<OperatorDef::enabled_right_element_operators && simple::support::array_operator::op_type \
+	std::enable_if_t<(OperatorDef::enabled_right_element_operators && simple::support::array_operator::op_type) \
 		&& !std::is_same_v<Array, Other> \
-	>* = nullptr, \
-	typename ElementResult = std::invoke_result_t<Operator, Element, Other>, \
-	std::enable_if_t<std::is_convertible_v<ElementResult, Element>>* =  nullptr \
+		&& std::is_invocable_r_v<Element, op_fun<Element,Other>, Element, Other>\
+	>* = nullptr \
 > \
 [[nodiscard]] constexpr Array operator op_symbol \
 ( \
@@ -331,7 +405,7 @@ template <typename Array, typename Other, \
 	using namespace simple::support::AOps_Details; \
 	Array result{}; \
 	array_right_element_binary_operator \
-		<Operator, OperatorDef::size> \
+		<op_fun<Element,Other>, OperatorDef::size> \
 		(OperatorDef::get_array(result), OperatorDef::get_array(one), other); \
 	return result; \
 } \
@@ -339,12 +413,10 @@ template <typename Array, typename Other, \
 template <typename Array, typename Other, \
 	typename OperatorDef = simple::support::define_array_operators<Array>, \
 	typename Element = simple::support::AOps_Details::array_element_t<OperatorDef, Array>, \
-	typename Operator = op_fun<Other, Element>, \
 	std::enable_if_t<(OperatorDef::enabled_left_element_operators && simple::support::array_operator::op_type) \
 		&& !std::is_same_v<Array, Other> \
-	>* = nullptr, \
-	typename ElementResult = std::invoke_result_t<Operator,Other, Element>, \
-	std::enable_if_t<std::is_convertible_v<ElementResult, Element>>* =  nullptr \
+		&& std::is_invocable_r_v<Element, op_fun<Other,Element>, Other, Element>\
+	>* = nullptr \
 > \
 [[nodiscard]] constexpr Array operator op_symbol \
 ( \
@@ -356,16 +428,33 @@ template <typename Array, typename Other, \
 	using namespace simple::support::AOps_Details; \
 	Array result{}; \
 	array_left_element_binary_operator \
-		<Operator, OperatorDef::size> \
+		<op_fun<Other,Element>, OperatorDef::size> \
 		(OperatorDef::get_array(result), OperatorDef::get_array(other), one); \
 	return result; \
 }
+
+SIMPLE_SUPPORT_DEFINE_BINARY_OPERATOR(+, add, simple::support::add)
+SIMPLE_SUPPORT_DEFINE_BINARY_OPERATOR(-, sub, simple::support::sub)
+SIMPLE_SUPPORT_DEFINE_BINARY_OPERATOR(*, mul, simple::support::mul)
+SIMPLE_SUPPORT_DEFINE_BINARY_OPERATOR(/, div, simple::support::div)
+SIMPLE_SUPPORT_DEFINE_BINARY_OPERATOR(%, mod, simple::support::mod)
+SIMPLE_SUPPORT_DEFINE_BINARY_OPERATOR(&, bit_and, simple::support::bit_and)
+SIMPLE_SUPPORT_DEFINE_BINARY_OPERATOR(|, bit_or, simple::support::bit_or)
+SIMPLE_SUPPORT_DEFINE_BINARY_OPERATOR(^, bit_xor, simple::support::bit_xor)
+SIMPLE_SUPPORT_DEFINE_BINARY_OPERATOR(<<, lshift, simple::support::lshift)
+SIMPLE_SUPPORT_DEFINE_BINARY_OPERATOR(>>, rshift, simple::support::rshift)
+
+#undef SIMPLE_SUPPORT_DEFINE_BINARY_OPERATOR
 
 #define SIMPLE_SUPPORT_DEFINE_IN_PLACE_OPERATOR(op_symbol, op_type, op_fun) \
 template <typename Array, \
 	typename OperatorDef = simple::support::define_array_operators<Array>, \
 	std::enable_if_t<OperatorDef::enabled_operators && simple::support::array_operator::op_type>* = nullptr> \
-constexpr Array& operator op_symbol (Array& one, const Array& other) \
+constexpr Array& operator op_symbol \
+( \
+	Array& one, \
+	const simple::support::non_deduced<Array>& other \
+) \
 { \
 	using namespace simple::support; \
 	using namespace simple::support::AOps_Details; \
@@ -377,10 +466,9 @@ constexpr Array& operator op_symbol (Array& one, const Array& other) \
 template <typename Array, typename Other, \
 	typename OperatorDef = simple::support::define_array_operators<Array>, \
 	typename Element = simple::support::AOps_Details::array_element_t<OperatorDef, Array>, \
-	typename Operator = op_fun<Element, Other>, \
-	typename ElementResult = std::invoke_result_t<Operator, Element&, Other>, \
-	std::enable_if_t<OperatorDef::enabled_right_element_operators && simple::support::array_operator::op_type \
-		&& std::is_convertible_v<ElementResult, Element> \
+	std::enable_if_t<(OperatorDef::enabled_right_element_operators && simple::support::array_operator::op_type) \
+		&& !std::is_same_v<Array, Other> \
+		&& std::is_invocable_r_v<Element&, op_fun<Element, Other>, Element&, Other> \
 	>* = nullptr \
 > \
 constexpr Array& operator op_symbol \
@@ -392,17 +480,16 @@ constexpr Array& operator op_symbol \
 	using namespace simple::support; \
 	using namespace simple::support::AOps_Details; \
 	array_right_element_in_place_operator \
-		<Operator, OperatorDef::size> \
+		<op_fun<Element,Other>, OperatorDef::size> \
 		(OperatorDef::get_array(one), other); \
 	return one; \
 } \
 template <typename Array, typename Other, \
 	typename OperatorDef = simple::support::define_array_operators<Array>, \
 	typename Element = simple::support::AOps_Details::array_element_t<OperatorDef, Array>, \
-	typename Operator = op_fun<Other, Element>, \
-	typename ElementResult = std::invoke_result_t<Operator, Other&, Element>, \
-	std::enable_if_t<OperatorDef::enabled_left_element_operators && simple::support::array_operator::op_type \
-		&& std::is_convertible_v<ElementResult, Element> \
+	std::enable_if_t<(OperatorDef::enabled_left_element_operators && simple::support::array_operator::op_type) \
+		&& !std::is_same_v<Array, Other> \
+		&& std::is_invocable_r_v<Element&, op_fun<Other,Element>, Other&, Element> \
 	>* = nullptr \
 > \
 constexpr Other& operator op_symbol \
@@ -414,23 +501,11 @@ constexpr Other& operator op_symbol \
 	using namespace simple::support; \
 	using namespace simple::support::AOps_Details; \
 	array_left_element_in_place_operator \
-		<Operator, OperatorDef::size> \
+		<op_fun<Other,Element>, OperatorDef::size> \
 		(one, OperatorDef::get_array(other)); \
 	return one; \
 }
 
-SIMPLE_SUPPORT_DEFINE_UNARY_OPERATOR(~, bit_not, simple::support::bit_not)
-SIMPLE_SUPPORT_DEFINE_UNARY_OPERATOR(-, negate, std::negate)
-SIMPLE_SUPPORT_DEFINE_BINARY_OPERATOR(+, add, simple::support::add)
-SIMPLE_SUPPORT_DEFINE_BINARY_OPERATOR(-, sub, simple::support::sub)
-SIMPLE_SUPPORT_DEFINE_BINARY_OPERATOR(*, mul, simple::support::mul)
-SIMPLE_SUPPORT_DEFINE_BINARY_OPERATOR(/, div, simple::support::div)
-SIMPLE_SUPPORT_DEFINE_BINARY_OPERATOR(%, mod, simple::support::mod)
-SIMPLE_SUPPORT_DEFINE_BINARY_OPERATOR(&, bit_and, simple::support::bit_and)
-SIMPLE_SUPPORT_DEFINE_BINARY_OPERATOR(|, bit_or, simple::support::bit_or)
-SIMPLE_SUPPORT_DEFINE_BINARY_OPERATOR(^, bit_xor, simple::support::bit_xor)
-SIMPLE_SUPPORT_DEFINE_BINARY_OPERATOR(<<, lshift, simple::support::lshift)
-SIMPLE_SUPPORT_DEFINE_BINARY_OPERATOR(>>, rshift, simple::support::rshift)
 SIMPLE_SUPPORT_DEFINE_IN_PLACE_OPERATOR(+=, add_eq, simple::support::add_in_place)
 SIMPLE_SUPPORT_DEFINE_IN_PLACE_OPERATOR(-=, sub_eq, simple::support::sub_in_place)
 SIMPLE_SUPPORT_DEFINE_IN_PLACE_OPERATOR(*=, mul_eq, simple::support::mul_in_place)
@@ -442,7 +517,6 @@ SIMPLE_SUPPORT_DEFINE_IN_PLACE_OPERATOR(^=, bit_xor_eq, simple::support::bit_xor
 SIMPLE_SUPPORT_DEFINE_IN_PLACE_OPERATOR(<<=, lshift_eq, simple::support::lshift_in_place)
 SIMPLE_SUPPORT_DEFINE_IN_PLACE_OPERATOR(>>=, rshift_eq, simple::support::rshift_in_place)
 
-#undef SIMPLE_SUPPORT_DEFINE_BINARY_OPERATOR
 #undef SIMPLE_SUPPORT_DEFINE_IN_PLACE_OPERATOR
 
 #endif /* end of include guard */

@@ -256,10 +256,10 @@ namespace simple::support
 	};
 
 	template <typename T>
-	struct array_operator_implicit_conversion { using type = T; };
+	struct array_operator_implicit_conversion { using type = support::remove_cvref_t<T>; };
 	template <typename T>
 	using array_operator_implicit_conversion_t =
-		typename array_operator_implicit_conversion<T>::type;
+		typename array_operator_implicit_conversion<support::remove_cvref_t<T>>::type;
 
 namespace AOps_Details
 {

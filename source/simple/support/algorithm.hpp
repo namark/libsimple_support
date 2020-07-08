@@ -6,6 +6,7 @@
 #include <algorithm>
 
 #include "range.hpp"
+#include "arithmetic.hpp"
 
 namespace simple::support
 {
@@ -273,6 +274,7 @@ namespace simple::support
 	[[nodiscard]] constexpr
 	auto average(Numbers... n)
 	//TODO: noexcept account for return value construction
+	//TODO: cast size to result type of sum instead of int
 	noexcept(noexcept((n + ...) / int(sizeof...(n))))
 	{
 		return (n + ...) / int(sizeof...(n));
@@ -281,9 +283,31 @@ namespace simple::support
 	template <typename Number>
 	[[nodiscard]] constexpr
 	Number midpoint(Number a, Number b)
-	noexcept(noexcept(Number(a + (b - a) / 2)))
+	noexcept(noexcept(Number(a + (b - a)/2)))
 	{
 		return a + (b - a)/2;
+	}
+
+	template <typename Unsigned>
+	[[nodiscard]] constexpr
+	Unsigned midpoint_overflow(Unsigned a, Unsigned b)
+	// noexcept(noexcept(TODO))
+	{
+
+		Unsigned diff{};
+		bool overflew = sub_overflow(diff,b,a);
+
+		// manual idiv
+		Unsigned idiff = -diff; // neg
+		idiff /= Unsigned{2}; // div
+		idiff = -idiff; // neg
+		// or... 0 - (0 - diff)/2, this is midpointception! TODO: -_-
+
+		diff /= Unsigned{2};
+
+		return a + (overflew ? idiff : diff);
+		// return a + overflew * idiff + ~overflew * diff;
+
 	}
 
 	// std::swap is not constexpr >.<

@@ -33,9 +33,19 @@ int main()
 	ss.str("");
 	ss.clear();
 
-	auto t2 = std::tuple(0,1,2,3);
+	auto t2 = std::tuple(0,1.1,2,3);
+
+	apply_for(2, [](auto&& x)
+			{ x += 2; }, t2) ;
+	assert( std::tuple(0,1.1,4,3) == t2 );
+
+	apply_for({1, 3}, [](auto&& x)
+			{ x += 2; }, t2) ;
+	assert( std::tuple(0,3.1,6,3) == t2 );
+
+	auto t3 = std::tuple(0,1,2,3);
 	assert( 4 == apply_for(2, [](auto&& x)
-				{ return x + 2; }, t2) );
+			{ return x + 2; }, t3) );
 
 	return 0;
 }

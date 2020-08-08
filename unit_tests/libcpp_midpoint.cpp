@@ -10,7 +10,7 @@
 // <numeric>
 
 // template <class _Tp>
-// _Tp midpoint_overflow(_Tp __a, _Tp __b) noexcept
+// _Tp midpoint(_Tp __a, _Tp __b) noexcept
 //
 
 #include <stdint.h>
@@ -30,44 +30,44 @@ void signed_test()
     constexpr T three{3};
     constexpr T four{4};
 
-    // ASSERT_SAME_TYPE(decltype(midpoint_overflow(T(), T())), T);
-    // ASSERT_NOEXCEPT(          midpoint_overflow(T(), T()));
+    static_assert(std::is_same_v<decltype(midpoint(T(), T())), T>);
+    // ASSERT_NOEXCEPT(          midpoint(T(), T()));
     using limits = std::numeric_limits<T>;
 
-    static_assert(midpoint_overflow(one, three) == two, "");
-    static_assert(midpoint_overflow(three, one) == two, "");
+    static_assert(midpoint(one, three) == two, "");
+    static_assert(midpoint(three, one) == two, "");
 
-    assert(midpoint_overflow(zero, zero) == zero);
-    assert(midpoint_overflow(zero, two)  == one);
-    assert(midpoint_overflow(two, zero)  == one);
-    assert(midpoint_overflow(two, two)   == two);
+    assert(midpoint(zero, zero) == zero);
+    assert(midpoint(zero, two)  == one);
+    assert(midpoint(two, zero)  == one);
+    assert(midpoint(two, two)   == two);
 
-    assert(midpoint_overflow(one, four)    == two);
-    assert(midpoint_overflow(four, one)    == three);
-    assert(midpoint_overflow(three, four)  == three);
-    assert(midpoint_overflow(four, three)  == four);
+    assert(midpoint(one, four)    == two);
+    assert(midpoint(four, one)    == three);
+    assert(midpoint(three, four)  == three);
+    assert(midpoint(four, three)  == four);
 
-    assert(midpoint_overflow(T( 3), T( 4)) == T(3));
-    assert(midpoint_overflow(T( 4), T( 3)) == T(4));
-    assert(midpoint_overflow(T(-3), T( 4)) == T(0));
-    assert(midpoint_overflow(T(-4), T( 3)) == T(-1));
-    assert(midpoint_overflow(T( 3), T(-4)) == T(0));
-    assert(midpoint_overflow(T( 4), T(-3)) == T(1));
-    assert(midpoint_overflow(T(-3), T(-4)) == T(-3));
-    assert(midpoint_overflow(T(-4), T(-3)) == T(-4));
+    assert(midpoint(T( 3), T( 4)) == T(3));
+    assert(midpoint(T( 4), T( 3)) == T(4));
+    assert(midpoint(T(-3), T( 4)) == T(0));
+    assert(midpoint(T(-4), T( 3)) == T(-1));
+    assert(midpoint(T( 3), T(-4)) == T(0));
+    assert(midpoint(T( 4), T(-3)) == T(1));
+    assert(midpoint(T(-3), T(-4)) == T(-3));
+    assert(midpoint(T(-4), T(-3)) == T(-4));
 
-    static_assert(midpoint_overflow(limits::min(), limits::max()) == T(-1), "");
-    static_assert(midpoint_overflow(limits::max(), limits::min()) == T( 0), "");
+    static_assert(midpoint(limits::min(), limits::max()) == T(-1), "");
+    static_assert(midpoint(limits::max(), limits::min()) == T( 0), "");
 
-    static_assert(midpoint_overflow(limits::min(), T(6)) == limits::min()/2 + 3, "");
-    assert(       midpoint_overflow(T(6), limits::min()) == limits::min()/2 + 3);
-    assert(       midpoint_overflow(limits::max(), T(6)) == limits::max()/2 + 4);
-    static_assert(midpoint_overflow(T(6), limits::max()) == limits::max()/2 + 3, "");
+    static_assert(midpoint(limits::min(), T(6)) == limits::min()/2 + 3, "");
+    assert(       midpoint(T(6), limits::min()) == limits::min()/2 + 3);
+    assert(       midpoint(limits::max(), T(6)) == limits::max()/2 + 4);
+    static_assert(midpoint(T(6), limits::max()) == limits::max()/2 + 3, "");
 
-    assert(       midpoint_overflow(limits::min(), T(-6)) == limits::min()/2 - 3);
-    static_assert(midpoint_overflow(T(-6), limits::min()) == limits::min()/2 - 3, "");
-    static_assert(midpoint_overflow(limits::max(), T(-6)) == limits::max()/2 - 2, "");
-    assert(       midpoint_overflow(T(-6), limits::max()) == limits::max()/2 - 3);
+    assert(       midpoint(limits::min(), T(-6)) == limits::min()/2 - 3);
+    static_assert(midpoint(T(-6), limits::min()) == limits::min()/2 - 3, "");
+    static_assert(midpoint(limits::max(), T(-6)) == limits::max()/2 - 2, "");
+    assert(       midpoint(T(-6), limits::max()) == limits::max()/2 - 3);
 }
 
 template <typename T>
@@ -79,46 +79,69 @@ void unsigned_test()
     constexpr T three{3};
     constexpr T four{4};
 
-    // ASSERT_SAME_TYPE(decltype(midpoint_overflow(T(), T())), T);
-    // ASSERT_NOEXCEPT(          midpoint_overflow(T(), T()));
+    static_assert(std::is_same_v<decltype(midpoint(T(), T())), T>);
+    // ASSERT_NOEXCEPT(          midpoint(T(), T()));
     using limits = std::numeric_limits<T>;
     const T half_way = (limits::max() - limits::min())/2;
 
-    static_assert(midpoint_overflow(one, three) == two, "");
-    static_assert(midpoint_overflow(three, one) == two, "");
+    static_assert(midpoint(one, three) == two, "");
+    static_assert(midpoint(three, one) == two, "");
 
-    assert(midpoint_overflow(zero, zero) == zero);
-    assert(midpoint_overflow(zero, two)  == one);
-    assert(midpoint_overflow(two, zero)  == one);
-    assert(midpoint_overflow(two, two)   == two);
+    assert(midpoint(zero, zero) == zero);
+    assert(midpoint(zero, two)  == one);
+    assert(midpoint(two, zero)  == one);
+    assert(midpoint(two, two)   == two);
 
-    assert(midpoint_overflow(one, four)    == two);
-    assert(midpoint_overflow(four, one)    == three);
-    assert(midpoint_overflow(three, four)  == three);
-    assert(midpoint_overflow(four, three)  == four);
+    assert(midpoint(one, four)    == two);
+    assert(midpoint(four, one)    == three);
+    assert(midpoint(three, four)  == three);
+    assert(midpoint(four, three)  == four);
 
-    assert(midpoint_overflow(limits::min(), limits::max()) == T(half_way));
-    assert(midpoint_overflow(limits::max(), limits::min()) == T(half_way + 1));
+    assert(midpoint(limits::min(), limits::max()) == T(half_way));
+    assert(midpoint(limits::max(), limits::min()) == T(half_way + 1));
 
-    static_assert(midpoint_overflow(limits::min(), T(6)) == limits::min()/2 + 3, "");
-    assert(       midpoint_overflow(T(6), limits::min()) == limits::min()/2 + 3);
-    assert(       midpoint_overflow(limits::max(), T(6)) == half_way + 4);
-    static_assert(midpoint_overflow(T(6), limits::max()) == half_way + 3, "");
+    static_assert(midpoint(limits::min(), T(6)) == limits::min()/2 + 3, "");
+    assert(       midpoint(T(6), limits::min()) == limits::min()/2 + 3);
+    assert(       midpoint(limits::max(), T(6)) == half_way + 4);
+    static_assert(midpoint(T(6), limits::max()) == half_way + 3, "");
+
+    static_assert(std::is_same_v<decltype(umidpoint(T(), T())), T>);
+    // ASSERT_NOEXCEPT(          midpoint(T(), T()));
+    static_assert(umidpoint(one, three) == two, "");
+    static_assert(umidpoint(three, one) == two, "");
+
+    assert(umidpoint(zero, zero) == zero);
+    assert(umidpoint(zero, two)  == one);
+    assert(umidpoint(two, zero)  == one);
+    assert(umidpoint(two, two)   == two);
+
+    assert(umidpoint(one, four)    == two);
+    assert(umidpoint(four, one)    == three);
+    assert(umidpoint(three, four)  == three);
+    assert(umidpoint(four, three)  == four);
+
+    assert(umidpoint(limits::min(), limits::max()) == T(half_way));
+    assert(umidpoint(limits::max(), limits::min()) == T(half_way + 1));
+
+    static_assert(umidpoint(limits::min(), T(6)) == limits::min()/2 + 3, "");
+    assert(       umidpoint(T(6), limits::min()) == limits::min()/2 + 3);
+    assert(       umidpoint(limits::max(), T(6)) == half_way + 4);
+    static_assert(umidpoint(T(6), limits::max()) == half_way + 3, "");
 }
 
 
 int main(int, char**)
 {
-    // signed_test<signed char>();
-    // signed_test<short>();
-    // signed_test<int>();
-    // signed_test<long>();
-    // signed_test<long long>();
-    //
-    // signed_test<int8_t>();
-    // signed_test<int16_t>();
-    // signed_test<int32_t>();
-    // signed_test<int64_t>();
+    signed_test<signed char>();
+    signed_test<short>();
+    signed_test<int>();
+    signed_test<long>();
+    signed_test<long long>();
+
+    signed_test<int8_t>();
+    signed_test<int16_t>();
+    signed_test<int32_t>();
+    signed_test<int64_t>();
 
     unsigned_test<unsigned char>();
     unsigned_test<unsigned short>();
@@ -137,7 +160,7 @@ int main(int, char**)
 #endif
 
 //     int_test<char>();
-    // signed_test<ptrdiff_t>();
+    signed_test<ptrdiff_t>();
     unsigned_test<size_t>();
 
     return 0;

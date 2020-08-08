@@ -153,6 +153,14 @@ void Variance()
 	assert( (std::equal(varfib.begin()+1, varfib.end() -1, fib.begin())) );
 }
 
+void Average()
+{
+	static_assert( average(1,2,3) == 2 );
+	static_assert( average(1,2,3,4.f) == 10.f/4.f );
+	static_assert( noexcept(average(1,2,3)) );
+	static_assert( noexcept(average(1,2.0,3.f)) );
+}
+
 constexpr bool Constexprness()
 {
 	range<int> v{};

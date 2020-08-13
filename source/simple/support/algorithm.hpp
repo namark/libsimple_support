@@ -321,25 +321,22 @@ namespace simple::support
 	// noexcept(noexcept(TODO))
 	{
 		using std::numeric_limits;
-		static_assert(
-			numeric_limits<Unsigned>::max() >=
-				Unsigned(numeric_limits<Integer>::max()),
-			"Unsigned includes Integer"
-		);
-		static_assert(
-			numeric_limits<Unsigned>::max()/2 <=
-				numeric_limits<Integer>::max(),
-			"Halfing Unsigned brings it to positive Integer range"
-		);
-		static_assert(std::is_unsigned_v<Integer> ||
-			Unsigned(numeric_limits<Integer>::max()) <=
-				Unsigned(-Unsigned(numeric_limits<Integer>::min())),
-			"Can negate a positive Integer"
-		);
+		constexpr Unsigned abs_int_min = -Unsigned(numeric_limits<Integer>::min());
+		constexpr auto int_max = numeric_limits<Integer>::max();
+		constexpr auto uint_max = numeric_limits<Unsigned>::max();
+
+		static_assert(uint_max >= int_max && uint_max - int_max >= abs_int_min,
+			"Unsigned includes Integer");
+
+		static_assert(uint_max/2 <= int_max,
+			"Halfing Unsigned brings it to positive Integer range");
+
+		static_assert(std::is_unsigned_v<Integer> || int_max <= abs_int_min,
+			"Can negate a positive Integer");
 
 		Unsigned diff = Unsigned(b) - Unsigned(a);
 
-		// 2's complement with carry as sign
+		// 2's complement with carry as a sign
 		Unsigned negative_2x = -diff; // neg
 		negative_2x /= 2; // div
 		Integer negative = -Integer(negative_2x); // neg

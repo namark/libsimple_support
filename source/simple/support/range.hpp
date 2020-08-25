@@ -47,25 +47,41 @@ namespace simple::support
 			return bounds == other.bounds;
 		}
 
-		template <typename T = Type, std::enable_if_t<range_based_for_loopable<T>{}>...>
-		constexpr Type begin() const { return lower(); }
-		template <typename T = Type, std::enable_if_t<range_based_for_loopable<T>{}>...>
-		constexpr Type end() const { return upper(); }
+		template <typename T = Type,
+			std::enable_if_t<range_based_for_loopable<T>{}>...>
+		[[nodiscard]] constexpr Type begin() const { return lower(); }
+		template <typename T = Type,
+			std::enable_if_t<range_based_for_loopable<T>{}>...>
+		[[nodiscard]] constexpr Type end() const { return upper(); }
 
-		template<typename Range>
-		constexpr range sub_range(const Range& other) const
+		template <typename T = Type,
+			std::enable_if_t<range_based_for_loopable<T>{}>...>
+		[[nodiscard]] constexpr auto rbegin() const
+		{ return std::make_reverse_iterator(upper()); }
+		template <typename T = Type,
+			std::enable_if_t<range_based_for_loopable<T>{}>...>
+		[[nodiscard]] constexpr auto rend() const
+		{ return std::make_reverse_iterator(lower()); }
+
+		template<typename OtherType>
+		[[nodiscard]] constexpr
+		range sub_range(range<OtherType> other) const
 		{
-			range result
+			// TODO: use unsigned for other type when it makes sense, to avoid overflow
+			clamp_in_place(other, {
+				OtherType{},
+				static_cast<OtherType>(upper() - lower())
+			});
+			return
 			{
 				lower() + other.lower(),
 				lower() + other.upper()
 			};
-			clamp_in_place(result, {lower(), upper()});
-			return result;
 		}
 
 		constexpr auto validity() const { return lower() <= upper(); }
 		constexpr bool valid() const { return bool(validity()); }
+
 		constexpr range& fix() &
 		{
 			using std::min;
@@ -87,6 +103,12 @@ namespace simple::support
 		constexpr range fix() const &
 		{
 			return range{*this}.fix();
+		}
+
+		[[nodiscard]]
+		constexpr auto reverse() const
+		{
+			return support::range{rbegin(), rend()};
 		}
 
 		template <typename ValueType = Type, std::common_type_t<ValueType, Type>* = nullptr>
@@ -167,6 +189,11 @@ namespace simple::support
 	template <typename Type>
 	constexpr range<Type> intersection(const range<Type>& one, range<Type> other)
 	{ return one.intersection(other); }
+
+	template <typename Type>
+	[[nodiscard]]
+	constexpr auto reverse(const range<Type>& one)
+	{ return one.reverse(); }
 
 	template <typename Type>
 	constexpr

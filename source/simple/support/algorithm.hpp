@@ -187,6 +187,7 @@ namespace simple::support
 
 
 	template <typename Container>
+	[[nodiscard]]
 	constexpr auto make_range(Container& container)
 	{
 		using std::begin;
@@ -198,6 +199,7 @@ namespace simple::support
 	constexpr auto make_range(Container&& container) = delete;
 
 	template <typename Container>
+	[[nodiscard]]
 	constexpr auto reverse_range(Container& container)
 	{
 		using std::rbegin;
@@ -210,12 +212,34 @@ namespace simple::support
 
 
 	template<typename Index = std::size_t, typename Container>
-	constexpr
+	[[nodiscard]] constexpr
 	auto get_iterator_range(Container&& container, const range<Index>& index_range)
+	{
+		return make_range(std::forward<Container>(container)).sub_range(index_range);
+	}
+
+	template<typename It>
+	[[nodiscard]] constexpr
+	auto distance(const range<It>& rng, It origin)
 	{
 		using std::begin;
 		using std::end;
-		return make_range(std::forward<Container>(container)).sub_range(index_range);
+		return range{ begin(rng) - origin, end(rng) - origin };
+	}
+
+	template <typename From, typename To, typename Origin>
+	[[nodiscard]] constexpr
+	auto map_range(const From& from, To&& to, Origin origin)
+	{
+		return get_iterator_range(to, distance(from, origin));
+	}
+
+	template <typename From, typename To>
+	[[nodiscard]] constexpr
+	auto map_range(const From& from, const To& to)
+	{
+		using std::begin;
+		return get_iterator_range(to, distance(from, begin(from)));
 	}
 
 	template <typename Itr, typename BinaryOp>
@@ -317,7 +341,7 @@ namespace simple::support
 	template <typename Integer,
 		typename Unsigned = std::make_unsigned_t<Integer>>
 	[[nodiscard]] constexpr
-	Integer midpoint(Integer a, Integer b)
+	Integer midpoint(Integer a, Integer b) noexcept
 	// noexcept(noexcept(TODO))
 	{
 		using std::numeric_limits;

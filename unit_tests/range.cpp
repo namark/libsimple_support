@@ -127,10 +127,23 @@ void SubRange()
 	range sub_rng_2{5, 9};
 	range sub_rng_3{0, 5};
 
-	assert( sub_rng == rng.sub_range(make_range(3, 8)) );
-	assert( sub_rng_2 == rng.sub_range(make_range(5, 800)) );
-	assert( sub_rng_3 == rng.sub_range(make_range(-105, 5)) );
-	assert( rng == rng.sub_range(make_range(-105, 105)) );
+	assert( sub_rng == rng.sub_range(range{3, 8}) );
+	assert( sub_rng_2 == rng.sub_range(range{5, 800}) );
+	assert( sub_rng_3 == rng.sub_range(range{-105, 5}) );
+	assert( rng == rng.sub_range(range{-105, 105}) );
+
+	auto limit = range<int>::limit();
+	range inc{-1,1};
+
+	assert( inc == inc.sub_range(limit) );
+
+	range near_limit {limit.upper(), limit.upper()};
+	near_limit -= 100;
+	near_limit.upper() += 50;
+	range overflow {25, 125};
+	range sub_near_limit = near_limit;
+	sub_near_limit.lower() += 25;
+	assert( sub_near_limit == near_limit.sub_range(overflow) );
 }
 
 template <typename Larger, typename Smaller>
@@ -256,7 +269,7 @@ constexpr bool Constexprness()
 	v.overlaps(v);
 	v.intersects_lower(i);
 	v.intersects_upper(i);
-	v.sub_range(v);
+	(void)v.sub_range(v);
 	v += 1;
 	v = v+1;
 	v -= 1;

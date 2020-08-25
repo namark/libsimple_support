@@ -116,6 +116,7 @@ void IteratorRange()
 	array<int, 5> sub_array{3, 4, 5, 6, 7};
 	array<int, 5> sub_array_2{5, 6, 7, 8, 9};
 	array<int, 5> sub_array_3{0, 1, 2, 3, 4};
+	array<int, 5> rsub_array_2{9, 8, 7, 6, 5};
 
 	int i = 0;
 	for(auto&& element : get_iterator_range(arr, {3, 8}))
@@ -124,6 +125,16 @@ void IteratorRange()
 	i = 0;
 	for(auto&& element : get_iterator_range(arr, {5, 800}))
 		assert(sub_array_2[i++] == element);
+
+	i = arr.size();;
+	for(auto&& element : reverse_range(arr))
+		assert(arr[--i] == element);
+
+
+	i = 0;
+	for(auto&& element : reverse(get_iterator_range(arr, {5, 800})))
+		assert(rsub_array_2[i++] == element);
+
 
 	i = 0;
 	for(auto&& element : get_iterator_range<int>(arr, {-105, 5}))
@@ -164,9 +175,11 @@ void Average()
 constexpr bool Constexprness()
 {
 	range<int> v{};
-	get_iterator_range(v.bounds, v);
-	make_range(v.bounds);
-	reverse_range(v.bounds);
+	range<int*> vitr{};
+	(void)get_iterator_range(v.bounds, v);
+	(void)make_range(v.bounds);
+	(void)reverse_range(v.bounds);
+	(void)reverse(vitr);
 	auto itr = v.bounds.begin();
 	advance_vector(itr,itr,itr);
 	advance_vector(itr,itr,itr,itr);

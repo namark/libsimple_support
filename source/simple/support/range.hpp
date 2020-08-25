@@ -13,10 +13,10 @@ namespace simple::support
 {
 
 	template<typename Type, typename = std::nullptr_t>
-	struct range_based_for_loopable : public std::false_type {};
+	struct is_iterable : public std::false_type {};
 
 	template<typename Type>
-	struct range_based_for_loopable<Type,
+	struct is_iterable<Type,
 	decltype(
 		void(std::declval<Type>() != std::declval<Type>()),
 		void(*std::declval<Type>()),
@@ -30,6 +30,9 @@ namespace simple::support
 	{
 
 		array<Type, 2> bounds;
+
+		using iterator = std::conditional_t<is_iterable<Type>{},
+			Type, void>;
 
 		constexpr static range limit()
 		{
@@ -47,19 +50,19 @@ namespace simple::support
 			return bounds == other.bounds;
 		}
 
-		template <typename T = Type,
-			std::enable_if_t<range_based_for_loopable<T>{}>...>
+		template <typename It = Type,
+			std::enable_if_t<is_iterable<It>{}>...>
 		[[nodiscard]] constexpr Type begin() const { return lower(); }
-		template <typename T = Type,
-			std::enable_if_t<range_based_for_loopable<T>{}>...>
+		template <typename It = Type,
+			std::enable_if_t<is_iterable<It>{}>...>
 		[[nodiscard]] constexpr Type end() const { return upper(); }
 
-		template <typename T = Type,
-			std::enable_if_t<range_based_for_loopable<T>{}>...>
+		template <typename It = Type,
+			std::enable_if_t<is_iterable<It>{}>...>
 		[[nodiscard]] constexpr auto rbegin() const
 		{ return std::make_reverse_iterator(upper()); }
-		template <typename T = Type,
-			std::enable_if_t<range_based_for_loopable<T>{}>...>
+		template <typename It = Type,
+			std::enable_if_t<is_iterable<It>{}>...>
 		[[nodiscard]] constexpr auto rend() const
 		{ return std::make_reverse_iterator(lower()); }
 

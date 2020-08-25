@@ -235,6 +235,12 @@ void Arithmetic()
 	}
 }
 
+void Iterator()
+{
+	static_assert(std::is_same_v<int*, range<int*>::iterator>);
+	static_assert(std::is_same_v<void, range<int>::iterator>);
+}
+
 constexpr bool Constexprness()
 {
 	range<int> v{};
@@ -289,6 +295,7 @@ int main()
 	SubRange();
 	Limit();
 	Arithmetic();
+	Iterator();
 	static_assert(Constexprness());
 	return 0;
 }

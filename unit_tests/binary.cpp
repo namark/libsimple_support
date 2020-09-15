@@ -1,4 +1,4 @@
-#include "simple/support/binary.hpp"
+#include "simple/support/bits.hpp"
 #include <climits>
 
 using namespace simple::support;

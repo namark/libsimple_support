@@ -3,9 +3,10 @@
 #include <iostream>
 #include "simple/support/tuple_utils.hpp"
 
-int main()
+using namespace simple::support;
+
+void ApplyFor()
 {
-	using simple::support::apply_for;
 	auto t = std::tuple(0," one ",2," three");
 	std::stringstream ss;
 
@@ -47,5 +48,52 @@ int main()
 	assert( 4 == apply_for(2, [](auto&& x)
 			{ return x + 2; }, t3) );
 
+}
+
+template <typename... T>
+constexpr auto tuple_tie(std::tuple<T...>& t)
+{
+	return std::apply(std::tie<T...>, t);
+}
+
+void CarCdr()
+{
+
+	{ auto t = std::tuple(true, 1.5, 5);
+		assert(tuple_car(t));
+		assert(1.5 == tuple_car(tuple_cdr(t)));
+	}
+
+	{ auto t = std::tuple(1, 2, 3);
+		auto tref = tuple_tie(t);
+
+		assert(t == tref);
+
+		tuple_car(tref) = -4;
+
+		assert(tuple_car(t) == -4);
+		assert(t == tref);
+
+		auto tref_cdr = tuple_tie_cdr(tref);
+
+		tuple_car(tref_cdr) = 13;
+
+		assert(std::get<1>(t) == 13);
+		assert(tref_cdr == std::tuple(13,3));
+
+		auto tref_cdr2 = tuple_tie_cdr(t);
+		tuple_car(tref_cdr2) = 12;
+
+		assert(std::get<1>(t) == 12);
+		assert(tref_cdr2 == tref_cdr);
+		assert(tref_cdr2 == std::tuple(12,3));
+		assert(tref_cdr == std::tuple(12,3));
+	}
+}
+
+int main()
+{
+	ApplyFor();
+	CarCdr();
 	return 0;
 }

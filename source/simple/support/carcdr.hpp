@@ -1,11 +1,12 @@
 #ifndef SIMPLE_SUPPORT_CARCDR_HPP
 #define SIMPLE_SUPPORT_CARCDR_HPP
 
-#include <tuple>
+#include <cstdint>
 #include <utility>
 
 namespace simple::support
 {
+	using std::size_t;
 
 	template <typename Int, Int... Values>
 	using lisp_list = std::integer_sequence<Int, Values...>;
@@ -23,67 +24,38 @@ namespace simple::support
 	template <typename IntSeq>
 	using cdr = typename carcdr<IntSeq>::cdr;
 
-	template <typename IntSeq>
-	constexpr typename IntSeq::value_type car() noexcept
-	{
-		static_assert( IntSeq::size() > 0 );
-		return carcdr<IntSeq>::car;
-	}
+	template <typename List, size_t = 0, auto ... Rest>
+	std::nullptr_t car;
 
-	template <typename IntSeq>
-	constexpr typename IntSeq::value_type car(typename IntSeq::value_type value) noexcept
+	template <typename List, size_t N,
+		typename List::value_type nil>
+	constexpr typename List::value_type
+	car<List, N, nil> = []()
 	{
-		if constexpr ( IntSeq::size() > 0 )
-			return (void)value, carcdr<IntSeq>::car;
+		if constexpr ( N >= List::size() )
+			return nil;
 		else
-			return value;
-	}
+			return car<List, N>;
+	}();
 
-	template <typename IntSeq, size_t N>
-	constexpr typename IntSeq::value_type car() noexcept
+	template <typename List, size_t N>
+	constexpr typename List::value_type
+	car<List, N> = []()
 	{
-		static_assert( N < IntSeq::size() );
+		static_assert( N < List::size() );
 		if constexpr (N == 0)
-			return car<IntSeq>();
+			return car<List>;
 		else
-			return car<cdr<IntSeq>, N - 1>();
-	}
+			return car<cdr<List>, N - 1>;
+	}();
 
-	template <typename IntSeq, size_t N>
-	constexpr typename IntSeq::value_type car(typename IntSeq::value_type value) noexcept
+	template <typename List>
+	constexpr typename List::value_type
+	car<List, 0> = []()
 	{
-		if constexpr ( N >= IntSeq::size() )
-			return value;
-		else if constexpr (N == 0)
-			return car<IntSeq>(value);
-		else
-			return car<cdr<IntSeq>, N - 1>(value);
-	}
-
-	template <typename... Rest, size_t... indices>
-	constexpr auto subtuple(const std::tuple<Rest...>& tuple, std::integer_sequence<size_t, indices...>)
-	{
-		return std::make_tuple(std::get<indices>(tuple)...);
-	}
-
-	template <typename First, typename... Rest>
-	constexpr auto tuple_car(const std::tuple<First, Rest...>& tuple)
-	{
-		return std::get<0>(tuple);
-	}
-
-	constexpr std::nullptr_t tuple_car(const std::tuple<>&)
-	{
-		return nullptr;
-	}
-
-	template <typename First, typename... Rest>
-	constexpr auto tuple_cdr(const std::tuple<First, Rest...>& tuple)
-	{
-		using indices = std::make_index_sequence<
-			std::tuple_size_v<std::decay_t<decltype(tuple)>>>;
-		return subtuple(tuple, cdr<indices>{});
-	}
+		static_assert( List::size() > 0 );
+		return carcdr<List>::car;
+	}();
 
 } // namespace simple::support
 

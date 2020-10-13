@@ -12,5 +12,7 @@ int main()
 	static_assert(car<lisp_list<int>, 0, 321> == 321);
 	static_assert(car<ints, 10, -9517> == -9517); // *shrug*
 
+	static_assert(std::is_same_v<cdr<cdr<cdr<cdr<ints>>>>, lisp_list<int>>);
+
 	return 0;
 }

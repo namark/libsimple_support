@@ -367,11 +367,12 @@ namespace simple::support
 
 		Integer positive = diff / 2;
 
-		auto overflew = b < a;
-		return a + (overflew ? negative : positive);
+		return a + (b < a ? negative : positive);
 
 		// TODO: this is for geom::vector
-		// return a + overflew * idiff + !overflew * diff;
+		// auto overflew = b < a;
+		// return a + overflew * negative + !overflew * positive;
+		// better yet introduce a mask function, since intrinsic vector has element-wise ternary
 
 	}
 

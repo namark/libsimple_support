@@ -220,7 +220,7 @@ namespace simple::support
 
 	template<typename It>
 	[[nodiscard]] constexpr
-	auto distance(const range<It>& rng, It origin)
+	auto distance(const range<It>& rng, const It& origin)
 	{
 		using std::begin;
 		using std::end;

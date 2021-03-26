@@ -1,6 +1,7 @@
 #include <cassert>
 #include <string>
 #include <sstream>
+#include <array>
 #include "simple/support/tuple_utils.hpp"
 #include "simple/support/function_utils.hpp"
 
@@ -100,6 +101,29 @@ void CarCdr()
 		tuple_car(tref_cdr4) = 88;
 		assert(std::get<2>(t) != 88);
 		assert(tref_cdr4 == std::tuple(88));
+
+		using short_int_long_nil = tuple_cdr_t<
+			std::tuple<char, short, int, long>>;
+		static_assert(std::is_same_v<
+			short_int_long_nil, std::tuple<short, int, long>>);
+		static_assert(std::is_same_v<
+			tuple_car_t<short_int_long_nil>, short>);
+
+		using int_long_nil = tuple_cdr_t<short_int_long_nil>;
+		static_assert(std::is_same_v<
+			int_long_nil, std::tuple<int, long>>);
+		static_assert(std::is_same_v<
+			tuple_car_t<int_long_nil>, int>);
+
+		using long_nil = tuple_cdr_t<int_long_nil>;
+		static_assert(std::is_same_v<
+			long_nil, std::tuple<long>>);
+		static_assert(std::is_same_v<
+			tuple_car_t<long_nil>, long>);
+
+		using nil = tuple_cdr_t<long_nil>;
+		static_assert(std::is_same_v<
+			nil, std::tuple<>>);
 	}
 }
 
@@ -284,6 +308,218 @@ void TransformNonTuple()
 
 }
 
+void Pend()
+{
+	static_assert( std::is_same_v<
+		append_t<std::tuple<char, short>, int, long>,
+		std::tuple<char, short, int, long>>);
+
+	static_assert( std::is_same_v<
+		append_t<std::tuple<>, int, long>,
+		std::tuple<int, long>>);
+
+	static_assert( std::is_same_v<
+		append_t<std::tuple<char, short>, std::tuple<>>,
+		std::tuple<char, short, std::tuple<>>>);
+
+	static_assert( std::is_same_v<
+		append_t<std::tuple<>>,
+		std::tuple<>>);
+
+	static_assert( std::is_same_v<
+		prepend_t<std::tuple<char, short>, int, long>,
+		std::tuple<int, long, char, short>>);
+
+	static_assert( std::is_same_v<
+		prepend_t<std::tuple<>, int, long>,
+		std::tuple<int, long>>);
+
+	static_assert( std::is_same_v<
+		prepend_t<std::tuple<char, short>, std::tuple<>>,
+		std::tuple<std::tuple<>, char, short>>);
+
+	static_assert( std::is_same_v<
+		prepend_t<std::tuple<>>,
+		std::tuple<>>);
+
+	static_assert( std::is_same_v<
+		append_t<std::tuple<char, short>, std::tuple<int, long>>,
+		std::tuple<char, short, std::tuple<int, long>>>);
+
+	static_assert( std::is_same_v<
+		concat_t<std::tuple<char, short>, std::tuple<int, long>>,
+		std::tuple<char, short, int, long>>);
+
+	static_assert( std::is_same_v<
+		concat_t<std::tuple<>, std::tuple<int, long>>,
+		std::tuple<int, long>>);
+
+	static_assert( std::is_same_v<
+		concat_t<std::tuple<char, short>, std::tuple<>>,
+		std::tuple<char, short>>);
+
+	static_assert( std::is_same_v<
+		concat_t<std::tuple<>, std::tuple<>>,
+		std::tuple<>>);
+}
+
+template <size_t i>
+using size_constant = std::integral_constant<size_t, i>;
+
+// find double counting floats on the way
+template <typename count, typename T>
+struct count_float_until_double
+{
+	static constexpr bool value = std::is_same_v<T, double>;
+	using binding = size_constant<count{} + std::is_same_v<T,float>>;
+};
+
+void MetaFind()
+{
+	static_assert(find_v<bool,
+		std::tuple<char, int, bool, double>>
+		== 2
+	);
+
+	static_assert(find_v<short,
+		std::tuple<char, int, bool, double>>
+		== 4
+	);
+
+	static_assert(find_if_v<std::is_floating_point,
+		std::tuple<char, int, bool, double>>
+		== 3
+	);
+
+	static_assert(find_if_v<std::is_array,
+		std::tuple<char, int, bool, double>>
+		== 4
+	);
+
+	static_assert(std::is_same_v<
+		find_if_t<std::is_floating_point,
+			std::tuple<char, bool, double, int>>,
+		double
+	>);
+
+	using found = find_meta_t
+	<
+		bind_meta<count_float_until_double, size_constant<0>>,
+		std::tuple<char, float, bool, float, double, int, float>
+	>;
+
+	// found double
+	static_assert(std::is_same_v<found::type, double>);
+	// at index 4
+	static_assert(found::value == 4);
+	// counted 2 floats
+	static_assert(found::functor::binding{} == 2);
+
+}
+
+// customizing flatten operator
+template <typename T>
+struct double_float : flatten_meta_operator<T> {};
+// to explode double into 2 floats, instead of flattening tuples
+template <>
+struct double_float<double>
+{ using type = std::tuple<float, float>; };
+
+// another customization to flatten tuples recursively
+template <typename T>
+struct flatten_tuple_deep : flatten_meta_operator<T> {};
+template <typename... Ts>
+struct flatten_tuple_deep<std::tuple<Ts...>>
+{ using type = flatten_t<std::tuple<Ts...>, flatten_tuple_deep>; };
+
+void MetaFlatten()
+{
+	static_assert(std::is_same_v<
+		flatten_t<std::tuple<>>,
+		std::tuple<>
+	>);
+
+	static_assert(std::is_same_v<
+		flatten_t<std::tuple<int, int>>,
+		std::tuple<int, int>
+	>);
+
+	static_assert(std::is_same_v<
+		flatten_t<std::tuple<int, std::tuple<bool, char>, int>>,
+		std::tuple<int, bool, char, int>
+	>);
+
+	// only one level, no recursion
+	static_assert(std::is_same_v<
+		flatten_t<std::tuple<
+			int,
+			std::tuple
+			<
+				bool,
+				std::tuple
+				<
+					long,
+					short
+				>,
+				char
+			>,
+			int
+		>>,
+		std::tuple
+		<
+			int,
+			bool,
+			std::tuple
+			<
+				long,
+				short
+			>,
+			char,
+			int
+		>
+	>);
+
+	// recursion with cutom operator
+	static_assert(std::is_same_v<
+		flatten_t<std::tuple
+		<
+			int,
+			std::tuple
+			<
+				bool,
+				std::tuple
+				<
+					long,
+					short
+				>,
+				char
+			>,
+			int
+		>, flatten_tuple_deep>,
+		std::tuple
+		<
+			int,
+			bool,
+			long,
+			short,
+			char,
+			int
+		>
+	>);
+
+	static_assert(std::is_same_v<
+		flatten_t<std::tuple<int, double, char>, double_float>,
+		std::tuple<int, float, float, char>
+	>);
+
+	// custom operator does not affect tuples
+	static_assert(std::is_same_v<
+		flatten_t<std::tuple<double, std::tuple<int, char>, bool>,
+			double_float>,
+		std::tuple<float, float, std::tuple<int, char>, bool>
+	>);
+}
+
 int main()
 {
 	ApplyFor();
@@ -293,5 +529,8 @@ int main()
 	TransformReturnVoid();
 	TransformIterationState();
 	TransformNonTuple();
+	Pend();
+	MetaFind();
+	MetaFlatten();
 	return 0;
 }

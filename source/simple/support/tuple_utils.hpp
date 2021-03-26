@@ -1,3 +1,8 @@
 #include "tuple_utils/apply_for.hpp"
 #include "tuple_utils/carcdr.hpp"
+#include "tuple_utils/common.hpp"
+#include "tuple_utils/meta_bind.hpp"
+#include "tuple_utils/meta_find.hpp"
+#include "tuple_utils/meta_flatten.hpp"
+#include "tuple_utils/pend.hpp"
 #include "tuple_utils/subtuple.hpp"

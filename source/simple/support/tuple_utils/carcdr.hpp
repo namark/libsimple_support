@@ -30,16 +30,23 @@ namespace simple::support
 	template <typename First, typename... Rest>
 	constexpr auto tuple_tie_cdr(const std::tuple<First, Rest...>& tuple)
 	{
-		using indices = tuple_indecies<decltype(tuple)>;
+		using indices = tuple_indices<decltype(tuple)>;
 		return tie_subtuple(tuple, cdr<indices>{});
 	}
 
 	template <typename First, typename... Rest>
 	constexpr auto tuple_tie_cdr(std::tuple<First, Rest...>& tuple)
 	{
-		using indices = tuple_indecies<decltype(tuple)>;
+		using indices = tuple_indices<decltype(tuple)>;
 		return tie_subtuple(tuple, cdr<indices>{});
 	}
+
+	template <typename Tuple>
+	using tuple_cdr_t = subtuple_t<Tuple,
+		cdr<tuple_indices<Tuple>> >;
+
+	template <typename Tuple>
+	using tuple_car_t = std::tuple_element_t<0, Tuple>;
 
 } // namespace simple::support
 

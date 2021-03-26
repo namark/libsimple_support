@@ -5,6 +5,7 @@
 #include <functional>
 #include <cassert>
 #include "../range.hpp"
+#include "common.hpp"
 
 namespace simple::support
 {
@@ -61,17 +62,6 @@ namespace simple::support
 				std::forward<std::remove_reference_t<First>>(first),
 				std::forward<std::remove_reference_t<Rest>>(rest)...);
 		}
-	}
-
-	constexpr struct tuple_void_t {} tuple_void;
-	[[nodiscard]] constexpr bool operator==(const tuple_void_t, const tuple_void_t) noexcept { return true; }
-	[[nodiscard]] constexpr bool operator!=(const tuple_void_t, const tuple_void_t) noexcept { return false; }
-
-	template <typename T>
-	constexpr decltype(auto) operator,(T&& x, const tuple_void_t)
-	//TODO: noexcept(-_-)
-	{
-		return std::forward<T>(x);
 	}
 
 	template <typename First, typename... Rest>

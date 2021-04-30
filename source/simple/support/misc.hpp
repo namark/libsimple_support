@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <string>
 #include <optional>
+#include <cinttypes>
 
 #include "range.hpp"
 
@@ -32,7 +33,7 @@ namespace simple::support
 			return std::strtoull(str, end, 0);
 		else if constexpr (std::is_signed_v<N>)
 		{
-			auto n = std::strtol(str, end, 0);
+			auto n = std::strtoimax(str, end, 0);
 			constexpr auto limit = range<N>::limit();
 			if(!limit.intersects(n))
 			{
@@ -43,7 +44,7 @@ namespace simple::support
 		}
 		else if constexpr (std::is_unsigned_v<N>)
 		{
-			auto n = std::strtoul(str, end, 0);
+			auto n = std::strtoumax(str, end, 0);
 			if(std::numeric_limits<N>::max() < n)
 			{
 				errno = ERANGE;

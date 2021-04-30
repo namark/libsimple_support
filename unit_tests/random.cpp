@@ -101,6 +101,12 @@ void TinyEngine()
 	tiny<unsigned long long> t3{};
 	ss >> t3;
 	assert( t == t3 );
+
+	// unlike standard engines, tiny accepts rvalue seed_seq
+	tiny<unsigned> t4(std::seed_seq({1,2,3}));
+	std::seed_seq sseq({1,2,3});
+	tiny<unsigned> t5(sseq);
+	assert( t4 == t5 );
 }
 
 void NaiveDistributions()

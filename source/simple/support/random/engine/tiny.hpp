@@ -46,6 +46,10 @@ namespace simple::support::random::engine
 			seed(gen);
 		}
 
+		template<typename Generator, can_generate_t<Generator> = nullptr>
+		constexpr explicit tiny(Generator&& gen) : tiny(gen)
+		{}
+
 		template<typename Engine, returns_result_t<Engine> = nullptr>
 		constexpr explicit tiny(Engine& engine) noexcept(noexcept(std::declval<Engine>()()))
 		{

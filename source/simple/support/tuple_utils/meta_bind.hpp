@@ -52,7 +52,7 @@ namespace simple::support
 	struct has_meta_binding : std::false_type {};
 	template <typename T>
 	struct has_meta_binding<T,
-		decltype(std::is_object_v<typename T::binding>, nullptr)>
+		decltype(void(std::is_object_v<typename T::binding>), nullptr)>
 		: std::true_type {};
 	template <typename T>
 	constexpr auto has_meta_binding_v = has_meta_binding<T>::value;

@@ -3,6 +3,7 @@
 #include <numeric>
 #include "simple/support/algorithm.hpp"
 
+
 using namespace simple::support;
 
 void MultidimentionalIteration()
@@ -196,12 +197,34 @@ constexpr bool Constexprness()
 	return true;
 }
 
+namespace adl_range_test
+{
+	struct segment
+	{
+		int* start;
+		int size;
+	};
+	int* begin(const segment& x) { return x.start; }
+	int* end(const segment& x) { return x.start + x.size; }
+}
+
+template <typename T> class show;
+void TypeTraits()
+{
+	static_assert(is_range_v<int(&)[2]>);
+	static_assert(!is_range_v<int[2]>);
+	static_assert(is_range_v<std::array<int,2>>);
+	static_assert(is_range_v<std::array<int,2>&>);
+	static_assert(is_range_v<adl_range_test::segment>);
+}
+
 int main()
 {
 	MultidimentionalIteration();
 	ContainerAsNumber();
 	IteratorRange();
 	Variance();
+	TypeTraits();
 	static_assert(Constexprness());
 	return 0;
 }

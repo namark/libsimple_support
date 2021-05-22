@@ -237,6 +237,7 @@ namespace simple::support
 		constexpr Result operator()(const Type& one) const { return ~one; }
 	};
 
+	// public
 	template <typename Type>
 	struct define_array_operators
 	{
@@ -255,6 +256,7 @@ namespace simple::support
 		constexpr static const Type& get_array(const Type& object) noexcept { return object; }
 	};
 
+	// public
 	template <typename T>
 	struct array_operator_implicit_conversion { using type = support::remove_cvref_t<T>; };
 	template <typename T>

@@ -41,7 +41,7 @@ namespace simple::support
 	struct has_meta_bindings<T,
 		// NOTE: is_object here is not checked, just serves as a type context,
 		// to fail if binding are not defined at all.
-		// can't use decltype as you can't just put anything in a tuple apparently:
+		// can't use declval as you can't just put anything in a tuple apparently:
 		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=92570
 		decltype(std::is_object_v<typename T::bindings>, nullptr)>
 		: std::true_type {};

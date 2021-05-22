@@ -20,11 +20,13 @@
  *  This is a modified version of Standard C++ Library header.
  *  More functions and methods made constexpr.
  *  c++17 specific features enabled unconditionally.
- *  operator!= will use same the operator on value_type if available.
+ *  operator!= will use the same operator on value_type if available.
  *  Anything that would be considered UB outside of std removed,
  *  including specializations of tuple interface; similar interface
  *  defined for use with ADL.
  */
+
+// TODO: seems like can get rid of this by c++20, since array is FINALLY more or less contexpr there -_-
 
 #ifndef SIMPLE_SUPPORT_ARRAY_HPP
 #define SIMPLE_SUPPORT_ARRAY_HPP

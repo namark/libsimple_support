@@ -34,6 +34,16 @@ namespace simple { namespace support
 	template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 	template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
+	// std::invoke is not constexpr, until c++20 -_-
+	template< class F, class... Args>
+	constexpr std::invoke_result_t<F, Args...>
+	invoke(F&& f, Args&&... args)
+	noexcept(std::is_nothrow_invocable_v<F,Args...>)
+	{
+		return std::apply(std::forward<F>(f),
+			std::forward_as_tuple(std::forward<Args>(args)...));
+	}
+
 }} // namespace simple.support
 
 #endif /* end of include guard */

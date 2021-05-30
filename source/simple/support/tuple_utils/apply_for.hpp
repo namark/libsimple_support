@@ -5,6 +5,7 @@
 #include <functional>
 #include <cassert>
 #include "../range.hpp"
+#include "../function_utils.hpp"
 #include "common.hpp"
 
 namespace simple::support
@@ -32,17 +33,15 @@ namespace simple::support
 	{
 		using std::remove_reference_t;
 		using First_t = remove_reference_t<First>;
-		using std::apply;
 		using std::get;
 		using std::tuple_element_t;
 		using std::forward;
 		static_assert(I >= 0 && I < std::tuple_size_v<First_t>);
 		if(I == index)
-			// std::invoke is not constexpr -_-
-			return apply(forward<F>(f), std::forward_as_tuple(
-					forward<tuple_element_t<I, First_t>>(get<I>(first)),
-					forward<tuple_element_t<I, remove_reference_t<Rest>>>(get<I>(rest))...
-			));
+			return support::invoke(forward<F>(f),
+					get<I>(std::forward<First>(first)),
+					get<I>(std::forward<Rest>(rest))...
+			);
 		if constexpr (I > 0)
 			return apply_for<F, decltype(forward<First_t>(first)), I - 1>(index, forward<F>(f),
 					forward<First_t>(first), forward<remove_reference_t<Rest>>(rest)...);
@@ -99,7 +98,7 @@ namespace simple::support
 	constexpr decltype(auto) transform(F&& f)
 	//TODO: noexcept(-_-)
 	{
-		return std::apply(std::forward<F>(f));
+		return support::invoke(std::forward<F>(f));
 	}
 
 	template<size_t Index, typename F, typename... Tuples,
@@ -112,10 +111,9 @@ namespace simple::support
 	decltype(auto) transform(F&& f, Tuples&&... tuples)
 	//TODO: noexcept(-_-)
 	{
-		// std::invoke is not contexpr in C++17 :V
 		auto info = iteration_state<Index, min_tuple_index_sequence<Tuples...>>{};
-		return std::apply(std::forward<F>(f),
-			std::forward_as_tuple(info, get<Index>(std::forward<Tuples>(tuples))...) );
+		return support::invoke(std::forward<F>(f),
+			info, get<Index>(std::forward<Tuples>(tuples))... );
 	}
 
 	template<size_t Index, typename F, typename... Tuples,
@@ -126,9 +124,8 @@ namespace simple::support
 	decltype(auto) transform(F&& f, Tuples&&... tuples)
 	//TODO: noexcept(-_-)
 	{
-		// std::invoke is not contexpr in C++17 :V
-		return std::apply(std::forward<F>(f),
-			std::forward_as_tuple(get<Index>(std::forward<Tuples>(tuples))...) );
+		return support::invoke(std::forward<F>(f),
+			get<Index>(std::forward<Tuples>(tuples))... );
 	}
 
 	template<typename F, typename... Tuples, size_t... Indecies,

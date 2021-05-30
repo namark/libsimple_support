@@ -1,5 +1,6 @@
 #ifndef SIMPLE_SUPPORT_ALGORITHM_ADVANCE_VECTOR_HPP
 #define SIMPLE_SUPPORT_ALGORITHM_ADVANCE_VECTOR_HPP
+#include <cassert>
 #include "utils.hpp"
 
 namespace simple::support

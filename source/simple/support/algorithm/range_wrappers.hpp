@@ -1,13 +1,24 @@
 #ifndef SIMPLE_SUPPORT_ALGORITHM_RANGE_WRAPPERS_HPP
 #define SIMPLE_SUPPORT_ALGORITHM_RANGE_WRAPPERS_HPP
 #include <algorithm>
+#include <string_view>
 
 namespace simple::support
 {
 
 	// TODO: use the adl pattern for begin and end - unqualified call that defaults to std versions, noexcept being the tricky part of course
 
-	// rangey wrappers
+
+	// TODO: check if string view has begin-end constructor(should since c++20) and replace this with alias
+	class string_view : public std::string_view
+	{
+		public:
+		using std::string_view::string_view;
+		string_view(const_iterator begin, const_iterator end)
+			: std::string_view(begin, end-begin)
+		{}
+	};
+
 
 	template <typename Range>
 	constexpr auto min_element(Range& range)

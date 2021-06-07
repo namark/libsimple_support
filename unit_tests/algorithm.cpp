@@ -1,10 +1,13 @@
+// TODO: need a test file per header and include the header first, to detect missing includes
+
 #include <cassert>
 #include <vector>
 #include <numeric>
 #include "simple/support/algorithm.hpp"
 
 
-using namespace simple::support;
+using namespace simple;
+using namespace support;
 
 void MultidimentionalIteration()
 {
@@ -218,6 +221,126 @@ void TypeTraits()
 	static_assert(is_range_v<adl_range_test::segment>);
 }
 
+void Search()
+{
+	{
+		char x[] = "aaab";
+		char y[] = "aab";
+		assert(::search(std::begin(x), std::end(x), std::begin(y), std::end(y)).begin() == x + 1);
+		assert(::search(std::begin(x), std::end(x), std::begin(y), std::end(y)).end() == std::end(x));
+		assert(*(std::end(x) - 1) == '\0');
+	}
+	{
+		char x[] = "aaab";
+		char y[] = "aba";
+		assert(search(std::begin(x), std::end(x), std::begin(y), std::end(y)).begin() == std::end(x));
+		assert(search(std::begin(x), std::end(x), std::begin(y), std::end(y)).end() == std::end(x));
+	}
+	{
+		std::array<char,4> x = {'a','a','a','b'};
+		char y[] = "aba";
+		assert(search(std::begin(x), std::end(x), std::begin(y), std::end(y)).begin() == std::end(x));
+		assert(search(std::begin(x), std::end(x), std::begin(y), std::end(y)).end() == std::end(x));
+	}
+	{
+		std::array<char,4> x = {'a','a','a','b'};
+		std::array<char,3> y = {'a','b','a'};
+		assert(search(std::begin(x), std::end(x), std::begin(y), std::end(y)).begin() == std::end(x));
+		assert(search(std::begin(x), std::end(x), std::begin(y), std::end(y)).end() == std::end(x));
+	}
+	{
+		char x[] = "aaab";
+		std::array<char,0> y{};
+		assert(search(std::begin(x), std::end(x), std::begin(y), std::end(y)).begin() == std::begin(x));
+		assert(search(std::begin(x), std::end(x), std::begin(y), std::end(y)).end() == std::begin(x));
+	}
+}
+
+auto split(std::string_view view, const std::string& separator)
+{
+	std::vector<string_view> result;
+	support::split(view, separator, std::back_inserter(result));
+	return result;
+}
+
+void Split()
+{
+	assert(( ::split("a--b--c", "--") == std::vector<string_view>{"a", "b", "c"} ));
+	assert(( ::split("a--b--c--", "--") == std::vector<string_view>{"a", "b", "c", ""} ));
+	assert(( ::split("--a--b--c", "--") == std::vector<string_view>{"", "a", "b", "c"} ));
+	assert(( ::split("--a--b--c--", "--") == std::vector<string_view>{"", "a", "b", "c", ""} ));
+	assert(( ::split("--""--""--""--""--a--b--c--", "--") == std::vector<string_view>{"", "", "", "", "", "a", "b", "c", ""} ));
+	assert(( ::split("--", "--") == std::vector<string_view>{"", ""} ));
+	assert(( ::split("", "--") == std::vector<string_view>{""} ));
+}
+
+void SetDifference()
+{
+	{
+		std::array x {1,2,2,3,4,5};
+		std::array y {2,4};
+		std::array<int, 4> z;
+		support::set_difference(std::begin(x), std::end(x), std::begin(y), std::end(y), std::begin(z));
+		assert(( z == std::array{1,2,3,5} ));
+	}
+
+	{
+		std::array x {5,4,3,2,2,1};
+		std::array y {4,2};
+		std::array<int, 4> z;
+		support::set_difference(std::begin(x), std::end(x), std::begin(y), std::end(y), std::begin(z), std::greater<>{});
+		assert(( z == std::array{5,3,2,1} ));
+	}
+
+	{
+		std::array x {1,2,2,3,4,5};
+		std::array y {2,4};
+		auto diff_end = support::set_difference(std::begin(x), std::end(x), std::begin(y), std::end(y), std::begin(x));
+		std::array diff{1,2,3,5};
+		assert( std::equal(std::begin(x), diff_end, std::begin(diff)) );
+	}
+
+	{
+		std::array x {1,2,2,3,4,5};
+		std::array<int,0> y {};
+		auto diff_end = support::set_difference(std::begin(x), std::end(x), std::begin(y), std::end(y), std::begin(x));
+		std::array diff{1,2,2,3,4,5};
+		assert( std::equal(std::begin(x), diff_end, std::begin(diff)) );
+	}
+
+	{
+		std::array<int,0> x {};
+		std::array y {1,2,3};
+		auto diff_end = support::set_difference(std::begin(x), std::end(x), std::begin(y), std::end(y), std::begin(x));
+		std::array<int,0> diff{};
+		assert( std::equal(std::begin(x), diff_end, std::begin(diff)) );
+	}
+
+	{
+		std::array x {1,2,3};
+		std::array y {1,2,3};
+		auto diff_end = support::set_difference(std::begin(x), std::end(x), std::begin(y), std::end(y), std::begin(x));
+		std::array<int,0> diff{};
+		assert( std::equal(std::begin(x), diff_end, std::begin(diff)) );
+	}
+
+	{
+		std::array x {1,2,3};
+		std::array y {1,2,3,4,5,6};
+		auto diff_end = support::set_difference(std::begin(x), std::end(x), std::begin(y), std::end(y), std::begin(x));
+		std::array<int,0> diff{};
+		assert( std::equal(std::begin(x), diff_end, std::begin(diff)) );
+	}
+
+	{
+		std::array x {12,12,12,12,12,12,12};
+		std::array y {12,12,12,12,12,12};
+		auto diff_end = support::set_difference(std::begin(x), std::end(x), std::begin(y), std::end(y), std::begin(x));
+		std::array diff{12};
+		assert( std::equal(std::begin(x), diff_end, std::begin(diff)) );
+	}
+}
+
 int main()
 {
 	MultidimentionalIteration();
@@ -225,6 +348,9 @@ int main()
 	IteratorRange();
 	Variance();
 	TypeTraits();
+	Search();
+	Split();
+	SetDifference();
 	static_assert(Constexprness());
 	return 0;
 }

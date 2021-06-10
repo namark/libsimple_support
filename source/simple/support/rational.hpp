@@ -3,6 +3,7 @@
 
 #include "array.hpp"
 #include "array_operators.hpp"
+#include "type_traits.hpp"
 
 namespace simple::support
 {
@@ -23,21 +24,21 @@ namespace simple::support
 			return *this;
 		}
 
-		constexpr operator Int() const
+		constexpr explicit operator Int() const
 		{
 			return (*this)[numerator] / (*this)[denominator];
 		}
 	};
 
 	template <typename Int>
-	constexpr rational<Int> operator*(rational<Int> ratio, const Int& value)
+	constexpr rational<Int> operator*(rational<Int> ratio, const non_deduced<Int>& value)
 	{
 		ratio *= value;
 		return ratio;
 	}
 
 	template <typename Int>
-	constexpr rational<Int> operator*(const Int& value, rational<Int> ratio)
+	constexpr rational<Int> operator*(const non_deduced<Int>& value, rational<Int> ratio)
 	{
 		ratio *= value;
 		return ratio;

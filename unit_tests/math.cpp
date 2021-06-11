@@ -1,3 +1,5 @@
+// TODO: need a test file per header and include the header first, to detect missing includes
+
 #include <cassert>
 #include <random>
 #include <iostream>

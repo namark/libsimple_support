@@ -281,6 +281,7 @@ namespace simple::support
 		// this is the another thing you need in order to support type promotion, expression templates etc.
 		// you can set this to the shape of the array (which would be size if there is no nesting),
 		// along with a tag that identifies the template, if you want that extra safety
+		// TODO: this is about operands so include operand in the name, perhaps simply operand_tag
 		using compatibility_tag = Type;
 	};
 

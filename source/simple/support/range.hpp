@@ -40,6 +40,7 @@ namespace simple::support
 			return { std::numeric_limits<Type>::lowest(), std::numeric_limits<Type>::max() };
 		}
 
+
 		constexpr Type& lower() noexcept { return bounds[0]; }
 		constexpr Type& upper() noexcept { return bounds[1]; }
 		constexpr const Type& lower() const noexcept { return bounds[0]; }
@@ -152,6 +153,31 @@ namespace simple::support
 			return other;
 		}
 
+		template <typename Other, std::enable_if_t<
+			std::is_convertible_v<Type, Other>
+		>* = nullptr>
+		operator range<Other> ()
+		{
+			return
+			{
+				static_cast<Other>(lower()),
+				static_cast<Other>(upper())
+			};
+		}
+
+		template <typename Other, std::enable_if_t<
+			!std::is_convertible_v<Type, Other> &&
+			std::is_constructible_v<Type, Other>
+		>* = nullptr>
+		explicit operator range<Other> ()
+		{
+			return
+			{
+				static_cast<Other>(lower()),
+				static_cast<Other>(upper())
+			};
+		}
+
 	};
 
 	template <typename T> range(T lower, T upper) -> range<T>;
@@ -239,6 +265,8 @@ namespace simple::support
 		return range<T>{std::forward<T>(lower), std::forward<T>(upper)};
 	}
 
+	class range_operators_compatibility_tag {};
+
 } // namespace simple::support
 
 namespace simple
@@ -263,6 +291,11 @@ namespace simple
 		{ return r.bounds; }
 		constexpr static const array<T,size>& get_array(const support::range<T>& r) noexcept
 		{ return r.bounds; }
+
+		template <typename R, array_operator, typename, bool>
+		using result = support::range<R>;
+
+		using compatibility_tag = support::range_operators_compatibility_tag;
 	};
 } // namespace simple
 

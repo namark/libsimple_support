@@ -45,7 +45,9 @@ namespace simple::support
 		return make_range(std::forward<Container>(container)).sub_range(index_range);
 	}
 
+	// TODO: maybe useful if generalized to any range like type, and makes use of std::ditance
 	template<typename It>
+	[[deprecated("no reason to use this anymore, can just subtract the origin from the range now")]]
 	[[nodiscard]] constexpr
 	auto distance(const range<It>& rng, const It& origin)
 	{

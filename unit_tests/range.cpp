@@ -211,13 +211,13 @@ void Limit()
 void Arithmetic()
 {
 	{range<float> r{-1,1};
-		assert(( r + 0.25 == range<float>{-0.75,1.25} ));
+		assert(( r + 0.25 == range<double>{-0.75,1.25} ));
 		r += 0.25;
 		assert(( r == range<float>{-0.75,1.25} ));
 	}
 
 	{range<float> r{-1,1};
-		assert(( r - 0.25 == range<float>{-1.25,0.75} ));
+		assert(( r - 0.25 == range<double>{-1.25,0.75} ));
 		r -= 0.25;
 		assert(( r == range<float>{-1.25,0.75} ));
 	}

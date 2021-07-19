@@ -254,10 +254,11 @@ namespace simple::support
 	struct define_array_operators
 	{
 		// specify the size of the array for the purposes of these operators
-		constexpr static size_t size = 0;
+		constexpr static size_t size = 1;
 
 		// a way to get to an actual array-like type in case Type does not expose the interface
-		constexpr static auto& get_array(Type& object);
+		constexpr static Type* get_array(Type& object) noexcept
+		{return &object;}
 
 		// operators to enable, only considering operands that define this trait
 		constexpr static array_operator enabled_operators = array_operator::none;
@@ -273,7 +274,8 @@ namespace simple::support
 		// Result - the deduced result element type
 		// array_operator - the operator in question
 		// Other - the element type of the other operand (for unary ops it's same as Type)
-		template <typename Result, array_operator, typename Other = Type>
+		// Element - indicates whether this is an right/left element operation
+		template <typename Result, array_operator, typename Other = Type, bool Element = false>
 		using result = Type;
 
 		// if this type is the same between two types they will be considered as operands for binary and in-place operators,
@@ -281,7 +283,7 @@ namespace simple::support
 		// this is the another thing you need in order to support type promotion, expression templates etc.
 		// you can set this to the shape of the array (which would be size if there is no nesting),
 		// along with a tag that identifies the template, if you want that extra safety
-		// TODO: this is about operands so include operand in the name, perhaps simply operand_tag
+		// TODO: implement a compatibility_check boolean variable template instead of (or in addition to) this tag, it would be more generic, and allow, for example, making all arithmetic types compatible... in general I would say if arithmetic can be done on two types than they are compatible, so maybe it should also be parameterized on the operator
 		using compatibility_tag = Type;
 	};
 
@@ -298,7 +300,7 @@ namespace simple::support
 		template <typename T>
 		constexpr static const T& get_array(const T& object) noexcept { return object; }
 
-		template <typename Result, array_operator, typename Other = Type>
+		template <typename Result, array_operator, typename Other = Type, bool Element = false>
 		using result = Type; // the result of binary operators is the same exact type, in all cases
 		// note that, while it can help somewhat, this does not (and can not) technically prevent type promotion and associated problems,
 		// to get around that properly you would need a more sophisticated solution
@@ -320,66 +322,59 @@ namespace AOps_Details
 {
 
 	template <typename Operator, size_t Size, typename Type, typename Result>
-	constexpr Result& array_unary_operator(Result& result, const Type& one)
+	constexpr void array_unary_operator(Result&& result, const Type& one)
 	{
 		auto op = Operator{};
 		for(size_t i = 0; i < Size; ++i)
 			result[i] = op(one[i]);
-		return result;
 	}
 
 	template <typename Operator, size_t Size, typename Type, typename Other>
-	constexpr Type& array_in_place_operator(Type& one, const Other& other)
+	constexpr void array_in_place_operator(Type&& one, const Other& other)
 	{
 		auto op = Operator{};
 		for(size_t i = 0; i < Size; ++i)
 			op(one[i], other[i]);
-		return one;
 	}
 
 	template <typename Operator, size_t Size, typename Type, typename Element>
-	constexpr Type& array_right_element_in_place_operator(Type& one, const Element& element)
+	constexpr void array_right_element_in_place_operator(Type&& one, const Element& element)
 	{
 		auto op = Operator{};
 		for(size_t i = 0; i < Size; ++i)
 			op(one[i], element);
-		return one;
 	}
 
 	template <typename Operator, size_t Size, typename Type, typename Element>
-	constexpr Element& array_left_element_in_place_operator(Element& element, const Type& array)
+	constexpr void array_left_element_in_place_operator(Element& element, const Type& array)
 	{
 		auto op = Operator{};
 		for(size_t i = 0; i < Size; ++i)
 			op(element, array[i]);
-		return element;
 	}
 
 	template <typename Operator, size_t Size, typename One, typename Other, typename Result>
-	constexpr Result& array_binary_operator(Result& result, const One& one, const Other& other)
+	constexpr void array_binary_operator(Result&& result, const One& one, const Other& other)
 	{
 		auto op = Operator{};
 		for(size_t i = 0; i < Size; ++i)
 			result[i] = op(one[i], other[i]);
-		return result;
 	}
 
-	template <typename Operator, size_t Size, typename Type, typename Element>
-	constexpr Type& array_right_element_binary_operator(Type& result, const Type& one, const Element& element)
+	template <typename Operator, size_t Size, typename Type, typename Element, typename Result>
+	constexpr void array_right_element_binary_operator(Result&& result, const Type& one, const Element& element)
 	{
 		auto op = Operator{};
 		for(size_t i = 0; i < Size; ++i)
 			result[i] = op(one[i], element);
-		return result;
 	}
 
-	template <typename Operator, size_t Size, typename Type, typename Element>
-	constexpr Type& array_left_element_binary_operator(Type& result, const Type& one, const Element& element)
+	template <typename Operator, size_t Size, typename Type, typename Element, typename Result>
+	constexpr void array_left_element_binary_operator(Result&& result, const Type& one, const Element& element)
 	{
 		auto op = Operator{};
 		for(size_t i = 0; i < Size; ++i)
 			result[i] = op(element, one[i]);
-		return result;
 	}
 
 	template <typename OperatorDef, typename Type>
@@ -402,7 +397,7 @@ template <typename Array, \
 	using namespace simple::support::AOps_Details; \
 	using element_t = simple::support::AOps_Details::array_element_t<OperatorDef, Array>; \
 	using result_element_t = std::invoke_result_t<op_fun,element_t>; \
-	using result_t = typename OperatorDef::template result<result_element_t, simple::support::array_operator::op_type, element_t>; \
+	using result_t = typename OperatorDef::template result<result_element_t, simple::support::array_operator::op_type, element_t, false>; \
 	result_t result{}; \
 	array_unary_operator \
 		<op_fun, OperatorDef::size> \
@@ -429,7 +424,7 @@ template <typename Array, typename Other,  void* = nullptr, \
 { \
 	using namespace simple::support; \
 	using namespace simple::support::AOps_Details; \
-	using result_t = typename OperatorDef::template result<std::invoke_result_t<op_fun,Element,OtherElement>, simple::support::array_operator::op_type, OtherElement>; \
+	using result_t = typename OperatorDef::template result<std::invoke_result_t<op_fun,Element,OtherElement>, simple::support::array_operator::op_type, OtherElement, false>; \
 	result_t result{}; \
 	using result_op_def = simple::support::define_array_operators<result_t>; \
 	static_assert(result_op_def::size == OperatorDef::size); \
@@ -454,13 +449,31 @@ template <typename T1, typename T2, \
 \
 template <typename Array, typename Other, \
 	typename OperatorDef = simple::support::define_array_operators<Array>, \
+	typename OtherOperatorDef = simple::support::define_array_operators<Other>, \
 	typename Element = simple::support::AOps_Details::array_element_t<OperatorDef, Array>, \
-	std::enable_if_t<(OperatorDef::enabled_right_element_operators && simple::support::array_operator::op_type) \
-		&& !std::is_same_v<Array, Other> \
-		&& std::is_invocable_r_v<Element, op_fun, Element, Other>\
+	typename ElementOpDef = simple::support::define_array_operators<Element>, \
+	typename OtherElement = simple::support::AOps_Details::array_element_t<OtherOperatorDef, Other>, \
+	typename OtherElOpDef = simple::support::define_array_operators<OtherElement>, \
+	bool ops_defined = OperatorDef::enabled_right_element_operators && simple::support::array_operator::op_type, \
+	typename Result = typename OperatorDef::template result<std::conditional_t<ops_defined, std::invoke_result_t<op_fun,Element,Other>, Element>, simple::support::array_operator::op_type, Other, true>, \
+	typename ResultOpDef = simple::support::define_array_operators<Result>, \
+	std::enable_if_t<(ops_defined) \
+		&& !std::is_same_v< \
+			typename OperatorDef::compatibility_tag, \
+			typename OtherOperatorDef::compatibility_tag> \
+		&& !std::is_same_v< \
+			typename OperatorDef::compatibility_tag, \
+			typename OtherElOpDef::compatibility_tag> \
+		&& (std::is_same_v< \
+			typename ElementOpDef::compatibility_tag, \
+			typename OtherOperatorDef::compatibility_tag> \
+			|| std::is_same_v< \
+			typename ResultOpDef::compatibility_tag, \
+			typename OperatorDef::compatibility_tag>) \
+		&& std::is_invocable_v<op_fun, Element, Other>\
 	>* = nullptr \
 > \
-[[nodiscard]] constexpr Array operator op_symbol \
+[[nodiscard]] constexpr auto operator op_symbol \
 ( \
 	const Array & one, \
 	const Other & other \
@@ -468,22 +481,40 @@ template <typename Array, typename Other, \
 { \
 	using namespace simple::support; \
 	using namespace simple::support::AOps_Details; \
-	Array result{}; \
+	Result result{}; \
 	array_right_element_binary_operator \
 		<op_fun, OperatorDef::size> \
-		(OperatorDef::get_array(result), OperatorDef::get_array(one), other); \
+		(ResultOpDef::get_array(result), OperatorDef::get_array(one), other); \
 	return result; \
 } \
 \
 template <typename Array, typename Other, \
 	typename OperatorDef = simple::support::define_array_operators<Array>, \
+	typename OtherOperatorDef = simple::support::define_array_operators<Other>, \
 	typename Element = simple::support::AOps_Details::array_element_t<OperatorDef, Array>, \
-	std::enable_if_t<(OperatorDef::enabled_left_element_operators && simple::support::array_operator::op_type) \
-		&& !std::is_same_v<Array, Other> \
-		&& std::is_invocable_r_v<Element, op_fun, Other, Element>\
+	typename ElementOpDef = simple::support::define_array_operators<Element>, \
+	typename OtherElement = simple::support::AOps_Details::array_element_t<OtherOperatorDef, Other>, \
+	typename OtherElOpDef = simple::support::define_array_operators<OtherElement>, \
+	bool ops_defined = OperatorDef::enabled_left_element_operators && simple::support::array_operator::op_type, \
+	typename Result = typename OperatorDef::template result<std::conditional_t<ops_defined, std::invoke_result_t<op_fun,Other,Element>, Element>, simple::support::array_operator::op_type, Other, true>, \
+	typename ResultOpDef = simple::support::define_array_operators<Result>, \
+	std::enable_if_t<(ops_defined) \
+		&& !std::is_same_v< \
+			typename OperatorDef::compatibility_tag, \
+			typename OtherOperatorDef::compatibility_tag> \
+		&& !std::is_same_v< \
+			typename OperatorDef::compatibility_tag, \
+			typename OtherElOpDef::compatibility_tag> \
+		&& (std::is_same_v< \
+			typename ElementOpDef::compatibility_tag, \
+			typename OtherOperatorDef::compatibility_tag> \
+			|| std::is_same_v< \
+			typename ResultOpDef::compatibility_tag, \
+			typename OperatorDef::compatibility_tag>) \
+		&& std::is_invocable_v<op_fun, Other, Element>\
 	>* = nullptr \
 > \
-[[nodiscard]] constexpr Array operator op_symbol \
+[[nodiscard]] constexpr auto operator op_symbol \
 ( \
 	const Other & one, \
 	const Array & other \
@@ -491,10 +522,10 @@ template <typename Array, typename Other, \
 { \
 	using namespace simple::support; \
 	using namespace simple::support::AOps_Details; \
-	Array result{}; \
+	Result result{}; \
 	array_left_element_binary_operator \
 		<op_fun, OperatorDef::size> \
-		(OperatorDef::get_array(result), OperatorDef::get_array(other), one); \
+		(ResultOpDef::get_array(result), OperatorDef::get_array(other), one); \
 	return result; \
 }
 

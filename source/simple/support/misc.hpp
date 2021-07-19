@@ -9,6 +9,7 @@
 #include <cinttypes>
 
 #include "range.hpp"
+#include "algorithm/utils.hpp"
 
 namespace simple::support
 {
@@ -129,10 +130,63 @@ namespace simple::support
 	}
 
 	template <typename It>
+	[[deprecated("use simple::support::string_view from simple/support/algorithm/range_wrappers.hpp")]]
 	std::string_view make_string_view(It begin, It end)
 	{
 		return {begin, static_cast<std::string_view::size_type>(end - begin)};
 	}
+
+	// NOTE: maybe put in algorithm range wrappers instead?
+	template <typename Container,
+		typename = std::enable_if_t<is_range_v<Container>>>
+	class index_range
+	{
+		public:
+
+		using container_type = Container;
+		using size_type = typename container_type::size_type;
+		explicit index_range
+		(
+			Container & container,
+			range<size_type> index = range<size_type>::limit()
+		) :
+			container(&container),
+			index(index)
+		{}
+
+		explicit index_range
+		(
+			Container & container,
+			range<typename Container::const_iterator> iterator_range
+		) :
+			container(&container),
+			index(iterator_range - container.begin())
+		{}
+
+		auto begin() const
+		{ return iter_at(index.lower()); }
+		auto end() const
+		{ return iter_at(index.upper()); }
+
+		private:
+		Container* container;
+		range<size_type> index;
+
+		auto iter_at(size_type index) const
+		{
+			using std::begin;
+			using std::end;
+			using std::clamp;
+
+			auto begin_ = begin(*container);
+			auto end_ = end(*container);
+
+			// TODO: use container.size() if available
+			return begin_ + clamp(index, size_type{},
+				static_cast<size_type>(end_ - begin_)); // good cast, since container can not have negative size
+		}
+
+	};
 
 } // namespace simple::support
 

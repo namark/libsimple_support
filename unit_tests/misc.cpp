@@ -101,11 +101,47 @@ void SimplifiedToNumber()
 		to_<unsigned char>(std::to_string(std::numeric_limits<unsigned char>::max()) + '0'));
 }
 
+void RangeReference()
+{
+	using std::begin;
+	using std::end;
+
+	const std::string prefix = "Permaprefix";
+
+	std::string	stuff{prefix};
+
+	range temporef{begin(stuff), end(stuff)};
+
+	assert( std::equal(begin(temporef), end(temporef),
+		begin(prefix), end(prefix)) );
+
+	index_range permaref(stuff, {begin(stuff), end(stuff)});
+
+	assert( std::equal(begin(permaref), end(permaref),
+		begin(prefix), end(prefix)) );
+
+	stuff += " now this a really really long long paragraph of text, that should by all means cause reallocation and stuff, so the iterators in temporef range will be invalidated, while permaref that uses indices will remain valid and usable... though it doesn't really matter if it actually relocates since there is no way to check any of this, you'll just have to believe me and trust me and never ever let me go...";
+
+	// can't do this anymore
+	// assert( std::equal(begin(temporef), end(temporef),
+	// 	begin(prefix), end(prefix)) );
+	// asan might not catch this, because of small string optimization, and since you are allowed to reinterpret anything as char* it might not even be UB dependent on the implementation, but then the assertion will fail at least
+	// otherwise the assertion might not fail, if the old/freed memory happens to remain untouched by either the system or the allocator
+	// so asan and assert together can kind of catch this I guess
+	// TODO: __gnu_debug::string (but not std::string under _GLIBCXX_DEBUG, it's an obscure exception) does catch this reliably, so that's a thing to consider for unit testing purposes in general
+
+	// all ok here
+	assert( std::equal(begin(permaref), end(permaref),
+		begin(prefix), end(prefix)) );
+
+}
+
 int main()
 {
 	StringToNumber();
 	StringToNumericRange();
 	NumericRangeToString();
 	SimplifiedToNumber();
+	RangeReference();
 	return 0;
 }

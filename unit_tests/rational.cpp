@@ -1,6 +1,7 @@
 #include "simple/support/rational.hpp"
 
 using simple::support::rational;
+using simple::support::meta_constant;
 
 constexpr bool Ratio()
 {
@@ -25,6 +26,19 @@ constexpr bool Ratio()
 	assertion &= int(ratio) == 7;
 	ratio *= 2;
 	assertion &= int(ratio) == 15;
+
+	auto half = rational(1, meta_constant<int,2>{});
+	auto one = half + half;
+	auto quarter = half * half;
+	auto onenhalf = half + 1;
+
+	assertion &= int(one) == 1;
+	assertion &= int(quarter * 16) == 4;
+	assertion &= int(quarter * 8) == 2;
+	assertion &= int(quarter * 15) == 3;
+	assertion &= (quarter * 2) == (quarter + quarter);
+	assertion &= (quarter * 2) == rational(2, meta_constant<int,4>{});
+	assertion &= onenhalf == rational(3, meta_constant<int,2>{});
 
 	return assertion;
 }
